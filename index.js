@@ -3,13 +3,15 @@ const path = require('path');
 const https = require('https');
 const fs = require('fs');
 const AdmZip = require('adm-zip');
-const ffmetadata = require("ffmetadata");
 const glob = require("glob");
 const ffprobe = require('node-ffprobe');
 const chalk = require('chalk');
 const logUpdate = require('log-update');
 const program = require('commander');
 const upath = require("upath");
+//gets set AFTER the path env has been set
+let ffmetadata;
+
 
 
 
@@ -59,8 +61,10 @@ async function checkffmpeg() {
     fs.readdirSync("./ffmpeg").forEach(file => {
         ffmpegPath = `/ffmpeg/${file}/bin/ffmpeg.exe`;
         ffprobePath = `/ffmpeg/${file}/bin/ffprobe.exe`;
-        process.env.FFMPEG_PATH = ffmpegPath;
-        ffprobe.FFPROBE_PATH = ffprobePath;
+        process.env.FFMPEG_PATH = path.join(__dirname, ffmpegPath);   
+        ffmetadata= require("ffmetadata");                                                 
+        // (__dirname + ffmpegPath).replace("/","\\");
+        ffprobe.FFPROBE_PATH = __dirname + ffprobePath;
         ffmpeg.setFfmpegPath(path.join(__dirname, ffmpegPath));
         ffmpeg.setFfprobePath(path.join(__dirname, ffprobePath));
         console.log(chalk.green('ffmpeg installed at:' + ffmpegPath));
@@ -181,9 +185,10 @@ function writeMusicMetadata(file, compilationName, cover) {
         var options = {
             attachments: [cover],
         };
+
         ffmetadata.write(file, data, options, function (err) {
             if (err) console.error("Error writing metadata", err);
-            else resolve();
+            resolve();
         });
     });
 }
@@ -216,7 +221,7 @@ async function main() {
 
 
     //startup
-    checkffmpeg();
+    await checkffmpeg();
     let files = await getFiles(directory);
     let baseDirectory = path.dirname(files[0]);
     let outputDirectory = baseDirectory + "/" + audioDirectory;
