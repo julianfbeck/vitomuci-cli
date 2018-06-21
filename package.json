@@ -1,0 +1,25 @@
+{
+  "name": "ffmtest",
+  "version": "1.0.0",
+  "description": "Zeranoe FFmpeg Builds <http://ffmpeg.zeranoe.com/builds/>",
+  "main": "index.js",
+  "directories": {
+    "doc": "doc"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "adm-zip": "^0.4.11",
+    "chalk": "^2.4.1",
+    "commander": "^2.15.1",
+    "ffmetadata": "^1.5.0",
+    "fluent-ffmpeg": "^2.1.2",
+    "glob": "^7.1.2",
+    "log-update": "^2.3.0",
+    "node-ffprobe": "https://github.com/ListenerApproved/node-ffprobe.git",
+    "upath": "^1.1.0"
+  }
+}

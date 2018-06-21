@@ -1,0 +1,5 @@
+node_modules
+ffmpeg
+testfolder
+*.mp3
+*.mp4
