@@ -61,8 +61,8 @@ async function checkffmpeg() {
     fs.readdirSync("./ffmpeg").forEach(file => {
         ffmpegPath = `/ffmpeg/${file}/bin/ffmpeg.exe`;
         ffprobePath = `/ffmpeg/${file}/bin/ffprobe.exe`;
-        process.env.FFMPEG_PATH = path.join(__dirname, ffmpegPath);   
-        ffmetadata= require("ffmetadata");                                                 
+        process.env.FFMPEG_PATH = path.join(__dirname, ffmpegPath);
+        ffmetadata = require("ffmetadata");
         // (__dirname + ffmpegPath).replace("/","\\");
         ffprobe.FFPROBE_PATH = __dirname + ffprobePath;
         ffmpeg.setFfmpegPath(path.join(__dirname, ffmpegPath));
@@ -150,6 +150,7 @@ function getFiles(input) {
     return new Promise((resolve, reject) => {
         console.log("searching " + input + " for files...");
         try {
+            //directory
             if (fs.lstatSync(input).isDirectory()) {
                 fs.readdir(input, (err, items) => {
                     let files = []
@@ -162,11 +163,16 @@ function getFiles(input) {
                 })
             }
         } catch (error) {
+            //regex
             glob(input, function (er, files) {
                 console.log("searching for matching files...");
                 console.log(files.length + " Files found");
                 resolve(files.sort());
             })
+            //single file
+            if (fs.existsSync(input)) {
+                resolve([input]);
+            }
         }
     });
 }
@@ -270,7 +276,6 @@ async function main() {
 }
 
 
-
 if (!program.args.length) {
     program.help();
 }
@@ -280,7 +285,6 @@ endAt = Number(program.end);
 clipLength = Number(program.duration);
 audioDirectory = program.output;
 seriesName = program.name;
-console.log(seriesName);
 
 
 main();
