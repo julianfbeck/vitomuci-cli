@@ -57,110 +57,6 @@ async function checkffmpeg() {
 
 
 /**
- * Converts a media file into a mp3 file called temp.mp3
- * @param {*} baseDirectory 
- * @param {*} input 
- */
-function convertToMp3(baseDirectory, input) {
-    return new Promise((resolve, reject) => {
-        let fileInfo;
-        logUpdate(`Converting ${input} to mp3`);
-        ffmpeg(input).format('mp3').save(baseDirectory + "/temp.mp3").on('error', console.error)
-            .on('codecData', function (data) {
-                fileInfo = data;
-            }).on('progress', function (progress) {
-                logUpdate(`Converting ${input} to mp3: ${chalk.blue(progress.timemark)}`);
-            }).on('end', function (stdout, stderr) {
-
-                resolve(fileInfo);
-            });
-    });
-};
-
-/**
- * Extracts one clip out of a longer mp3 file using the 
- * seekInput and duration fuction.
- * Gets called when splitting up a larger file smaller ones
- * @param {String} input 
- * @param {String} output 
- * @param {Number} start 
- * @param {Number} duration 
- */
-function segmentMp3(input, output, start, duration) {
-    return new Promise((resolve, reject) => {
-        ffmpeg(input).seekInput(start).duration(duration).save(output).on('error', console.error)
-            .on('end', function (stdout, stderr) {
-                resolve();
-            });
-    });
-};
-
-
-/**
- * Takes a picture from a media file and saves it as
- * cover.jpg used to generate a cover
- * @param {String} file 
- * @param {String} baseDirectory 
- * @param {String} picTime 
- */
-function getCoverPicture(file, baseDirectory, picTime) {
-    console.log("take cover picture from " + file + " at " + picTime);
-    return new Promise((resolve, reject) => {
-        ffmpeg(file)
-            .screenshots({
-                timestamps: [picTime],
-                filename: baseDirectory + "/cover.jpg",
-                size: '320x240'
-            }).on('end', function (stdout, stderr) {
-                resolve(baseDirectory + "/cover.jpg");
-            });
-    });
-};
-
-/**
- * Splits a mp3 file into multiple smaler sized parts and renames them
- * if part is shorter than 30 seconds it gets skipped
- * @param {String} baseDirectory 
- * @param {String} outputDirectory 
- * @param {String} name 
- * @param {Number} duration 
- */
-async function splitTrack(baseDirectory, outputDirectory, name, duration) {
-    let durationIndex = startAt;
-    let parts = 0;
-    while ((durationIndex + clipLength) <= (duration - endAt)) {
-        logUpdate(`Splitting ${name} into ${chalk.blue(parts+1)} parts`);
-        await segmentMp3(baseDirectory + "/temp.mp3", outputDirectory + "/" + getSegmentName(name, durationIndex, durationIndex + clipLength), durationIndex, clipLength);
-        durationIndex += clipLength
-        parts++;
-    }
-    if (((duration - endAt) - durationIndex) >= 30) {
-        await segmentMp3(baseDirectory + "/temp.mp3", getSegmentName(name, durationIndex, (duration - endAt) - durationIndex), durationIndex, clipLength);
-        parts++;
-    }
-
-}
-/**
- * Generates Name for a Segment
- * @param {String} name 
- * @param {Number} start 
- * @param {Number} end 
- */
-function getSegmentName(name, start, end) {
-    return `${name}_${secondsToTimeString(start)}-${secondsToTimeString(end)}.mp3`
-}
-
-
-/**
- * Converts seconds into a ISO time string 
- * @param {Number} seconds 
- */
-function secondsToTimeString(seconds) {
-    return new Date(seconds * 1000).toISOString().substr(14, 5).replace(":", ".");
-
-}
-
-/**
  * Searchs directory for files, 
  * or search for mattching rules if 
  * a file gets inputed
@@ -210,6 +106,105 @@ function getFiles(input) {
 }
 
 /**
+ * Converts a media file into a mp3 file called temp.mp3
+ * @param {*} baseDirectory 
+ * @param {*} input 
+ */
+function convertToMp3(baseDirectory, input) {
+    return new Promise((resolve, reject) => {
+        let fileInfo;
+        logUpdate(`Converting ${input} to mp3`);
+        ffmpeg(input).format('mp3').save(baseDirectory + "/temp.mp3").on('error', console.error)
+            .on('codecData', function (data) {
+                fileInfo = data;
+            }).on('progress', function (progress) {
+                logUpdate(`Converting ${input} to mp3: ${chalk.blue(progress.timemark)}`);
+            }).on('end', function (stdout, stderr) {
+
+                resolve(fileInfo);
+            });
+    });
+};
+
+/**
+ * Extracts one clip out of a longer mp3 file using the 
+ * seekInput and duration fuction.
+ * Gets called when splitting up a larger file smaller ones
+ * @param {String} input 
+ * @param {String} output 
+ * @param {Number} start 
+ * @param {Number} duration 
+ */
+function segmentMp3(input, output, start, duration) {
+    return new Promise((resolve, reject) => {
+        ffmpeg(input).seekInput(start).duration(duration).save(output).on('error', console.error)
+            .on('end', function (stdout, stderr) {
+                resolve();
+            });
+    });
+};
+
+
+/**
+ * Splits a mp3 file into multiple smaler sized parts and renames them
+ * if part is shorter than 30 seconds it gets skipped
+ * @param {String} baseDirectory 
+ * @param {String} outputDirectory 
+ * @param {String} name 
+ * @param {Number} duration 
+ */
+async function splitTrack(baseDirectory, outputDirectory, name, duration) {
+    let durationIndex = startAt;
+    let parts = 0;
+    while ((durationIndex + clipLength) <= (duration - endAt)) {
+        logUpdate(`Splitting ${name} into ${chalk.blue(parts+1)} parts`);
+        await segmentMp3(baseDirectory + "/temp.mp3", outputDirectory + "/" + getSegmentName(name, durationIndex, durationIndex + clipLength), durationIndex, clipLength);
+        durationIndex += clipLength
+        parts++;
+    }
+    if (((duration - endAt) - durationIndex) >= 30) {
+        await segmentMp3(baseDirectory + "/temp.mp3", getSegmentName(name, durationIndex, (duration - endAt) - durationIndex), durationIndex, clipLength);
+        parts++;
+    }
+}
+
+
+/**
+ * Generates Name for a Segment
+ * @param {String} name 
+ * @param {Number} start 
+ * @param {Number} end 
+ */
+function getSegmentName(name, start, end) {
+    return `${name}_${secondsToTimeString(start)}-${secondsToTimeString(end)}.mp3`
+}
+
+
+/**
+ * Converts seconds into a ISO time string 
+ * @param {Number} seconds 
+ */
+function secondsToTimeString(seconds) {
+    return new Date(seconds * 1000).toISOString().substr(14, 5).replace(":", ".");
+
+}
+
+
+/**
+ * Returns the duration of a given 
+ * media file
+ * @param {*} file 
+ */
+function getFileLength(file) {
+    return new Promise((resolve, reject) => {
+        ffprobe(file, (err, probeData) => {
+            resolve(probeData.format.duration)
+        });
+    });
+}
+
+
+/**
  * Writes music meta data and cover to the given file
  * Also sets disc:1 to join all mp3 files into one copilation
  * @param {String} file 
@@ -238,6 +233,29 @@ function writeMusicMetadata(file, compilationName, cover) {
     });
 }
 
+
+/**
+ * Takes a picture from a media file and saves it as
+ * cover.jpg used to generate a cover
+ * @param {String} file 
+ * @param {String} baseDirectory 
+ * @param {String} picTime 
+ */
+function getCoverPicture(file, baseDirectory, picTime) {
+    console.log("take cover picture from " + file + " at " + picTime);
+    return new Promise((resolve, reject) => {
+        ffmpeg(file)
+            .screenshots({
+                timestamps: [picTime],
+                filename: baseDirectory + "/cover.jpg",
+                size: '320x240'
+            }).on('end', function (stdout, stderr) {
+                resolve(baseDirectory + "/cover.jpg");
+            });
+    });
+};
+
+
 /**
  * Promise wrap for deleting a file
  * @param {*} file 
@@ -253,18 +271,6 @@ function deleteFile(file) {
     });
 }
 
-/**
- * Returns the duration of a given 
- * media file
- * @param {*} file 
- */
-function getFileLength(file) {
-    return new Promise((resolve, reject) => {
-        ffprobe(file, (err, probeData) => {
-            resolve(probeData.format.duration)
-        });
-    });
-}
 
 /**
  * Cleans up the filename of the given files
@@ -285,6 +291,7 @@ function rename(files) {
     console.log("Renamed files to " + renamedFiles);
     return renamedFiles;
 }
+
 
 /**
  * Main
@@ -350,8 +357,7 @@ seriesName = program.name;
 
 main();
 
-
-//depricated
+/** Depricated!!
 async function downloadFfpeg() {
     console.log(chalk.green('Looking for ffmpeg instalation'));
     //TODO check if envirment is set
@@ -392,3 +398,4 @@ async function downloadFfmpeg(file_url) {
         });
     });
 };
+*/
