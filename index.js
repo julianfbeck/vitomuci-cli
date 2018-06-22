@@ -29,13 +29,17 @@ let directory
 
 program
     .version('0.0.1')
-    .usage('[options] <path>')
+    .usage('[options] <directory>')
     .option('-s, --start [start]', 'in s: cut away start from the beginning to remove advertisment etc.', 18)
     .option('-e, --end [end]', 'in s: cut away end from the end to remove advertisment etc.', 18)
     .option('-d, --duration [duration]', 'the duration of the clips the file gets split to', 18)
     .option('-n, --name [name]', 'the name of the clips and metadata', null)
-    .option('-c, --cover', 'if a cover photo should be added to the mp3 metadata', true)
+    .option('-c, --cover [cover]', 'if a cover photo should be added to the mp3 metadata', true)
     .option('-o, --output [output]', 'name of the output folder', "audio")
+    .option('-r, --rename', 'removes text inside brackets to cleanup filenames like (1080p)', false)
+    .option('-f, --file', 'expects a single file"[options] <file with/without regex>"', false)
+
+
     .parse(process.argv);
 
 
@@ -90,6 +94,8 @@ function convertToMp3(baseDirectory, input) {
         ffmpeg(input).format('mp3').save(baseDirectory + "/temp.mp3").on('error', console.error)
             .on('codecData', function (data) {
                 fileInfo = data;
+            }).on('progress', function (progress) {
+                console.log('Processing: ' + progress.percent + '% done');
             }).on('end', function (stdout, stderr) {
 
                 resolve(fileInfo);
@@ -163,19 +169,30 @@ function getFiles(input) {
                 })
             }
         } catch (error) {
-            //regex
-            glob(input, function (er, files) {
-                console.log("searching for matching files...");
-                console.log(files.length + " Files found");
-                resolve(files.sort());
-            })
             //single file
             if (fs.existsSync(input)) {
                 resolve([input]);
             }
+            //remove brackets
+            let removeB = ""
+            for (var i = 0; i < input.length; i++) {
+                if (input.charAt(i) == "[") {
+                    removeB=removeB.concat("[[]");
+                } else if (input.charAt(i) == "]") {
+                    removeB=removeB.concat("[]]");
+                } else {
+                    removeB=removeB.concat(input.charAt(i));
+                }
+            }
+            console.log("searching for matching files... " + removeB);
+            glob(removeB, function (er, files) {
+                console.log(files.length + " Files found");
+                resolve(files.sort());
+            })
         }
     });
 }
+
 
 function writeMusicMetadata(file, compilationName, cover) {
     return new Promise((resolve, reject) => {
@@ -219,19 +236,32 @@ function getFileLength(file) {
     });
 }
 
+function rename(files) {
+    let renamedFiles = [];
+    files.forEach(function (file) {
+        let basename = path.basename(file);
+        let curDir = path.dirname(file)
+        let removeRound = basename.replace(/ *\([^)]*\) */g, "");
+        let removeSquare = removeRound.replace(/ *\[[^)]*\] */g, "");
+        let newName = path.join(curDir, removeSquare);
+        renamedFiles.push(newName);
+        fs.renameSync(file, newName);
+    });
+    console.log("Renamed files to " + renamedFiles);
+    return renamedFiles;
+}
 
 
 
 async function main() {
-
-
-
     //startup
     await checkffmpeg();
     let files = await getFiles(directory);
-    let baseDirectory = path.dirname(files[0]);
-    let outputDirectory = baseDirectory + "/" + audioDirectory;
+    files = program.rename ? rename(files) : files
+    return;
 
+    let baseDirectory = path.dirname(files[0]);
+    let outputDirectory = path.join(baseDirectory, audioDirectory);
 
     //create folders, delete existing files
     if (!fs.existsSync(outputDirectory))
