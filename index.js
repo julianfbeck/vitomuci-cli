@@ -37,7 +37,6 @@ program
     .option('-c, --cover [cover]', 'if a cover photo should be added to the mp3 metadata', true)
     .option('-o, --output [output]', 'name of the output folder', "audio")
     .option('-r, --rename', 'removes text inside brackets to cleanup filenames like (1080p)', false)
-    .option('-f, --file', 'expects a single file"[options] <file with/without regex>"', false)
 
 
     .parse(process.argv);
@@ -90,12 +89,12 @@ async function downloadFfmpeg(file_url) {
 function convertToMp3(baseDirectory, input) {
     return new Promise((resolve, reject) => {
         let fileInfo;
-        console.log("Converting " + input + " to mp3");
+        logUpdate(`Converting ${input} to mp3`);
         ffmpeg(input).format('mp3').save(baseDirectory + "/temp.mp3").on('error', console.error)
             .on('codecData', function (data) {
                 fileInfo = data;
             }).on('progress', function (progress) {
-                console.log('Processing: ' + progress.percent + '% done');
+                logUpdate(`Converting ${input} to mp3: ${chalk.blue(progress.timemark)}`);
             }).on('end', function (stdout, stderr) {
 
                 resolve(fileInfo);
@@ -131,6 +130,7 @@ async function splitTrack(baseDirectory, outputDirectory, name, duration) {
     let durationIndex = startAt;
     let parts = 0;
     while ((durationIndex + clipLength) <= (duration - endAt)) {
+        logUpdate(`Splitting ${name} into ${chalk.blue(parts+1)} parts`);
         await segmentMp3(baseDirectory + "/temp.mp3", outputDirectory + "/" + getSegmentName(name, durationIndex, durationIndex + clipLength), durationIndex, clipLength);
         durationIndex += clipLength
         parts++;
@@ -139,7 +139,6 @@ async function splitTrack(baseDirectory, outputDirectory, name, duration) {
         await segmentMp3(baseDirectory + "/temp.mp3", getSegmentName(name, durationIndex, (duration - endAt) - durationIndex), durationIndex, clipLength);
         parts++;
     }
-    console.log(`Splitted ${name} into ${parts} parts`);
 
 }
 
@@ -154,16 +153,16 @@ function secondsToTimeString(seconds) {
 
 function getFiles(input) {
     return new Promise((resolve, reject) => {
-        console.log("searching " + input + " for files...");
         try {
             //directory
             if (fs.lstatSync(input).isDirectory()) {
+                console.log("searching " + input + " for files...");
                 fs.readdir(input, (err, items) => {
                     let files = []
                     items.forEach((file) => {
-                        let stats = fs.statSync(input + "/" + file);
+                        let stats = fs.statSync(path.join(input, file));
                         if (stats.isFile() && !(file === "temp.mp3"))
-                            files.push(input + "/" + file)
+                            files.push(path.join(input, file));
                     });
                     resolve(files.sort());
                 })
@@ -177,11 +176,11 @@ function getFiles(input) {
             let removeB = ""
             for (var i = 0; i < input.length; i++) {
                 if (input.charAt(i) == "[") {
-                    removeB=removeB.concat("[[]");
+                    removeB = removeB.concat("[[]");
                 } else if (input.charAt(i) == "]") {
-                    removeB=removeB.concat("[]]");
+                    removeB = removeB.concat("[]]");
                 } else {
-                    removeB=removeB.concat(input.charAt(i));
+                    removeB = removeB.concat(input.charAt(i));
                 }
             }
             console.log("searching for matching files... " + removeB);
@@ -189,6 +188,7 @@ function getFiles(input) {
                 console.log(files.length + " Files found");
                 resolve(files.sort());
             })
+            reject("no file was found")
         }
     });
 }
@@ -258,7 +258,6 @@ async function main() {
     await checkffmpeg();
     let files = await getFiles(directory);
     files = program.rename ? rename(files) : files
-    return;
 
     let baseDirectory = path.dirname(files[0]);
     let outputDirectory = path.join(baseDirectory, audioDirectory);
@@ -269,13 +268,9 @@ async function main() {
     if (fs.existsSync(baseDirectory + "/temp.mp3"))
         await deleteFile(baseDirectory + "/temp.mp3");
 
-
-
-
-
-    console.log('input directory', baseDirectory);
-    console.log('output direcory', outputDirectory);
-    console.log(`Found ${files.length} Files, start converting...`)
+    console.log(`Found ${chalk.blue(files.length)} Files, start converting...`)
+    
+    //main process
     for (let item of files) {
         let seconds = await getFileLength(item);
         await convertToMp3(baseDirectory, item);
