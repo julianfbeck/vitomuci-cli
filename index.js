@@ -14,10 +14,6 @@ const upath = require("upath");
 //gets set AFTER the path env has been set
 let ffmetadata;
 
-
-
-
-
 let startAt = 0;
 let endAt = 0;
 let clipLength = 0;
@@ -41,6 +37,14 @@ program
 
     .parse(process.argv);
 
+directory = upath.normalize(program.args[0]).replace(/\/$/, "");
+startAt = Number(program.start);
+endAt = Number(program.end);
+clipLength = Number(program.duration);
+audioDirectory = program.output;
+seriesName = program.name;
+
+
 /**
  * Sets the required ffmpeg path to all 
  * packages that require it
@@ -57,9 +61,9 @@ async function checkffmpeg() {
 
 
 /**
- * Searchs directory for files, 
- * or search for mattching rules if 
- * a file gets inputed
+ * Searches for files inside input,
+ * or search for matching files if a regex
+ * gets inputed
  * @param {String} input directory or file
  * @returns {Promise} array with files
  */
@@ -158,12 +162,12 @@ async function splitTrack(baseDirectory, outputDirectory, name, duration) {
     let parts = 0;
     while ((durationIndex + clipLength) <= (duration - endAt)) {
         logUpdate(`Splitting ${name} into ${chalk.blue(parts+1)} parts`);
-        await segmentMp3(baseDirectory + "/temp.mp3", outputDirectory + "/" + getSegmentName(name, durationIndex, durationIndex + clipLength), durationIndex, clipLength);
+        await segmentMp3(path.join(baseDirectory, "temp.mp3"), path.join(outputDirectory, getSegmentName(name, durationIndex, durationIndex + clipLength)), durationIndex, clipLength);
         durationIndex += clipLength
         parts++;
     }
     if (((duration - endAt) - durationIndex) >= 30) {
-        await segmentMp3(baseDirectory + "/temp.mp3", getSegmentName(name, durationIndex, (duration - endAt) - durationIndex), durationIndex, clipLength);
+        await segmentMp3(path.join(baseDirectory, "temp.mp3"), path.join(outputDirectory, getSegmentName(name, durationIndex, durationIndex + clipLength)), durationIndex, clipLength);
         parts++;
     }
 }
@@ -247,10 +251,10 @@ function getCoverPicture(file, baseDirectory, picTime) {
         ffmpeg(file)
             .screenshots({
                 timestamps: [picTime],
-                filename: baseDirectory + "/cover.jpg",
+                filename: path.join(baseDirectory, "cover.jpg"),
                 size: '320x240'
             }).on('end', function (stdout, stderr) {
-                resolve(baseDirectory + "/cover.jpg");
+                resolve(path.join(baseDirectory, "cover.jpg"))
             });
     });
 };
@@ -308,11 +312,11 @@ async function main() {
     //create folders, delete existing files
     if (!fs.existsSync(outputDirectory))
         fs.mkdirSync(outputDirectory);
-    if (fs.existsSync(baseDirectory + "/temp.mp3"))
-        await deleteFile(baseDirectory + "/temp.mp3");
+    if (fs.existsSync(path.join(baseDirectory, "temp.mp3")))
+        await deleteFile(path.join(baseDirectory, "temp.mp3"));
 
     console.log(`Found ${chalk.blue(files.length)} Files, start converting...`)
-    
+
     //main process
     for (let item of files) {
         let seconds = await getFileLength(item);
@@ -320,7 +324,7 @@ async function main() {
         let filename = path.basename(item)
         let removeType = filename.substr(0, filename.lastIndexOf('.')) || filename;
         await splitTrack(baseDirectory, outputDirectory, filename, Number(seconds));
-        await deleteFile(baseDirectory + "/temp.mp3");
+        await deleteFile(path.join(baseDirectory, "temp.mp3"));
 
     }
 
@@ -336,7 +340,7 @@ async function main() {
     //updating meta data
     fs.readdir(outputDirectory, async function (err, files) {
         for (let file of files) {
-            await writeMusicMetadata(outputDirectory + "/" + file, seriesName, coverPath);
+            await writeMusicMetadata(path.join(outputDirectory, file), seriesName, coverPath);
         }
         console.log(`updated metadata of ${files.length} Files`)
         await deleteFile(coverPath);
@@ -347,12 +351,6 @@ async function main() {
 if (!program.args.length) {
     program.help();
 }
-directory = upath.normalize(program.args[0]).replace(/\/$/, "");
-startAt = Number(program.start);
-endAt = Number(program.end);
-clipLength = Number(program.duration);
-audioDirectory = program.output;
-seriesName = program.name;
 
 
 main();
