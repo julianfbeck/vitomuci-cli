@@ -317,7 +317,7 @@ async function main() {
 
     console.log(`Found ${chalk.blue(files.length)} Files, start converting...`)
 
-    //main process
+    //main loop
     for (let item of files) {
         let seconds = await getFileLength(item);
         await convertToMp3(baseDirectory, item);
