@@ -1,4 +1,6 @@
 const ffmpeg = require('fluent-ffmpeg');
+const ffmpegPath = require('@ffmpeg-installer/ffmpeg').path;
+const ffprobePath = require('@ffprobe-installer/ffprobe').path;
 const path = require('path');
 const https = require('https');
 const fs = require('fs');
@@ -15,8 +17,6 @@ let ffmetadata;
 
 
 
-let ffmpegPath;
-let ffprobePath;
 
 let startAt = 0;
 let endAt = 0;
@@ -44,7 +44,7 @@ program
 
 
 
-async function checkffmpeg() {
+async function downloadFfpeg() {
     console.log(chalk.green('Looking for ffmpeg instalation'));
     //TODO check if envirment is set
     if (!fs.existsSync("./ffmpeg")) {
@@ -74,6 +74,16 @@ async function checkffmpeg() {
     })
 }
 
+
+async function checkffmpeg() {
+
+    ffmpeg.setFfmpegPath(ffmpegPath);
+    ffmpeg.setFfprobePath(ffprobePath);
+    process.env.FFMPEG_PATH = ffmpegPath;
+    ffprobe.FFPROBE_PATH = ffprobePath;
+    ffmetadata = require("ffmetadata");
+    console.log(chalk.green('ffmpeg installed at:' + ffmpegPath));
+}
 
 async function downloadFfmpeg(file_url) {
     return new Promise((resolve, reject) => {

@@ -9,11 +9,12 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "debug": "node --nolazy --inspect-brk=9229 index.js -s 180 -e 180 -d 240 -r testfolder\test[0](aasdfasf)\test[0](aasdfasf)ss?.mp4"
-    
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@ffmpeg-installer/ffmpeg": "^1.0.15",
+    "@ffprobe-installer/ffprobe": "^1.0.9",
     "adm-zip": "^0.4.11",
     "chalk": "^2.4.1",
     "commander": "^2.15.1",
