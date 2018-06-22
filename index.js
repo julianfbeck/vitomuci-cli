@@ -41,40 +41,10 @@ program
 
     .parse(process.argv);
 
-
-
-
-async function downloadFfpeg() {
-    console.log(chalk.green('Looking for ffmpeg instalation'));
-    //TODO check if envirment is set
-    if (!fs.existsSync("./ffmpeg")) {
-        console.log(chalk.red("ffmpeg missing"));
-        console.log(chalk.red("Download ffmpeg......."));
-        await downloadFfmpeg("https://ffmpeg.zeranoe.com/builds/win64/static/ffmpeg-4.0-win64-static.zip");
-        // unzip
-        let zip = new AdmZip("ffmpeg.zip");
-        zip.extractAllTo("./ffmpeg", true);
-
-        fs.unlink('ffmpeg.zip', (err) => {
-            if (err) throw err;
-        });
-        console.log(chalk.green("Finish instalation"));
-    };
-    //set path
-    fs.readdirSync("./ffmpeg").forEach(file => {
-        ffmpegPath = `/ffmpeg/${file}/bin/ffmpeg.exe`;
-        ffprobePath = `/ffmpeg/${file}/bin/ffprobe.exe`;
-        process.env.FFMPEG_PATH = path.join(__dirname, ffmpegPath);
-        ffmetadata = require("ffmetadata");
-        // (__dirname + ffmpegPath).replace("/","\\");
-        ffprobe.FFPROBE_PATH = __dirname + ffprobePath;
-        ffmpeg.setFfmpegPath(path.join(__dirname, ffmpegPath));
-        ffmpeg.setFfprobePath(path.join(__dirname, ffprobePath));
-        console.log(chalk.green('ffmpeg installed at:' + ffmpegPath));
-    })
-}
-
-
+/**
+ * Sets the required ffmpeg path to all 
+ * packages that require it
+ */
 async function checkffmpeg() {
 
     ffmpeg.setFfmpegPath(ffmpegPath);
@@ -85,17 +55,12 @@ async function checkffmpeg() {
     console.log(chalk.green('ffmpeg installed at:' + ffmpegPath));
 }
 
-async function downloadFfmpeg(file_url) {
-    return new Promise((resolve, reject) => {
-        let file = fs.createWriteStream("ffmpeg.zip");
-        let request = https.get(file_url, function (response) {
-            response.pipe(file).on('finish', function () {
-                resolve();
-            })
-        });
-    });
-};
 
+/**
+ * Converts a media file into a mp3 file called temp.mp3
+ * @param {*} baseDirectory 
+ * @param {*} input 
+ */
 function convertToMp3(baseDirectory, input) {
     return new Promise((resolve, reject) => {
         let fileInfo;
@@ -112,6 +77,15 @@ function convertToMp3(baseDirectory, input) {
     });
 };
 
+/**
+ * Extracts one clip out of a longer mp3 file using the 
+ * seekInput and duration fuction.
+ * Gets called when splitting up a larger file smaller ones
+ * @param {String} input 
+ * @param {String} output 
+ * @param {Number} start 
+ * @param {Number} duration 
+ */
 function segmentMp3(input, output, start, duration) {
     return new Promise((resolve, reject) => {
         ffmpeg(input).seekInput(start).duration(duration).save(output).on('error', console.error)
@@ -122,6 +96,13 @@ function segmentMp3(input, output, start, duration) {
 };
 
 
+/**
+ * Takes a picture from a media file and saves it as
+ * cover.jpg used to generate a cover
+ * @param {String} file 
+ * @param {String} baseDirectory 
+ * @param {String} picTime 
+ */
 function getCoverPicture(file, baseDirectory, picTime) {
     console.log("take cover picture from " + file + " at " + picTime);
     return new Promise((resolve, reject) => {
@@ -136,6 +117,14 @@ function getCoverPicture(file, baseDirectory, picTime) {
     });
 };
 
+/**
+ * Splits a mp3 file into multiple smaler sized parts and renames them
+ * if part is shorter than 30 seconds it gets skipped
+ * @param {String} baseDirectory 
+ * @param {String} outputDirectory 
+ * @param {String} name 
+ * @param {Number} duration 
+ */
 async function splitTrack(baseDirectory, outputDirectory, name, duration) {
     let durationIndex = startAt;
     let parts = 0;
@@ -151,16 +140,33 @@ async function splitTrack(baseDirectory, outputDirectory, name, duration) {
     }
 
 }
-
+/**
+ * Generates Name for a Segment
+ * @param {String} name 
+ * @param {Number} start 
+ * @param {Number} end 
+ */
 function getSegmentName(name, start, end) {
     return `${name}_${secondsToTimeString(start)}-${secondsToTimeString(end)}.mp3`
 }
 
+
+/**
+ * Converts seconds into a ISO time string 
+ * @param {Number} seconds 
+ */
 function secondsToTimeString(seconds) {
     return new Date(seconds * 1000).toISOString().substr(14, 5).replace(":", ".");
 
 }
 
+/**
+ * Searchs directory for files, 
+ * or search for mattching rules if 
+ * a file gets inputed
+ * @param {String} input directory or file
+ * @returns {Promise} array with files
+ */
 function getFiles(input) {
     return new Promise((resolve, reject) => {
         try {
@@ -203,7 +209,13 @@ function getFiles(input) {
     });
 }
 
-
+/**
+ * Writes music meta data and cover to the given file
+ * Also sets disc:1 to join all mp3 files into one copilation
+ * @param {String} file 
+ * @param {String} compilationName 
+ * @param {String} cover 
+ */
 function writeMusicMetadata(file, compilationName, cover) {
     return new Promise((resolve, reject) => {
 
@@ -226,6 +238,10 @@ function writeMusicMetadata(file, compilationName, cover) {
     });
 }
 
+/**
+ * Promise wrap for deleting a file
+ * @param {*} file 
+ */
 function deleteFile(file) {
     return new Promise((resolve, reject) => {
         fs.unlink(file, function (error) {
@@ -237,7 +253,11 @@ function deleteFile(file) {
     });
 }
 
-
+/**
+ * Returns the duration of a given 
+ * media file
+ * @param {*} file 
+ */
 function getFileLength(file) {
     return new Promise((resolve, reject) => {
         ffprobe(file, (err, probeData) => {
@@ -246,6 +266,11 @@ function getFileLength(file) {
     });
 }
 
+/**
+ * Cleans up the filename of the given files
+ * Removes Brackets and the text inside them
+ * @param {Array} files 
+ */
 function rename(files) {
     let renamedFiles = [];
     files.forEach(function (file) {
@@ -261,8 +286,9 @@ function rename(files) {
     return renamedFiles;
 }
 
-
-
+/**
+ * Main
+ */
 async function main() {
     //startup
     await checkffmpeg();
@@ -323,3 +349,46 @@ seriesName = program.name;
 
 
 main();
+
+
+//depricated
+async function downloadFfpeg() {
+    console.log(chalk.green('Looking for ffmpeg instalation'));
+    //TODO check if envirment is set
+    if (!fs.existsSync("./ffmpeg")) {
+        console.log(chalk.red("ffmpeg missing"));
+        console.log(chalk.red("Download ffmpeg......."));
+        await downloadFfmpeg("https://ffmpeg.zeranoe.com/builds/win64/static/ffmpeg-4.0-win64-static.zip");
+        // unzip
+        let zip = new AdmZip("ffmpeg.zip");
+        zip.extractAllTo("./ffmpeg", true);
+
+        fs.unlink('ffmpeg.zip', (err) => {
+            if (err) throw err;
+        });
+        console.log(chalk.green("Finish instalation"));
+    };
+    //set path
+    fs.readdirSync("./ffmpeg").forEach(file => {
+        ffmpegPath = `/ffmpeg/${file}/bin/ffmpeg.exe`;
+        ffprobePath = `/ffmpeg/${file}/bin/ffprobe.exe`;
+        process.env.FFMPEG_PATH = path.join(__dirname, ffmpegPath);
+        ffmetadata = require("ffmetadata");
+        // (__dirname + ffmpegPath).replace("/","\\");
+        ffprobe.FFPROBE_PATH = __dirname + ffprobePath;
+        ffmpeg.setFfmpegPath(path.join(__dirname, ffmpegPath));
+        ffmpeg.setFfprobePath(path.join(__dirname, ffprobePath));
+        console.log(chalk.green('ffmpeg installed at:' + ffmpegPath));
+    })
+}
+//depricated
+async function downloadFfmpeg(file_url) {
+    return new Promise((resolve, reject) => {
+        let file = fs.createWriteStream("ffmpeg.zip");
+        let request = https.get(file_url, function (response) {
+            response.pipe(file).on('finish', function () {
+                resolve();
+            })
+        });
+    });
+};
