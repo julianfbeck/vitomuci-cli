@@ -2,7 +2,7 @@
  * @Author: Julian Beck
  * @Date: 2018-06-25 09:34:35
  * @LastEditors: OBKoro1
- * @LastEditTime: 2018-06-25 15:48:09
+ * @LastEditTime: 2018-06-25 16:27:06
  * @Description: Video to mp3 converter
  */
 const ffmpeg = require('fluent-ffmpeg');
@@ -25,9 +25,9 @@ const isUrl = require('is-url');
 //gets set AFTER the path env has been set
 let ffmetadata;
 
-let startAt = 0;
-let endAt = 0;
-let clipLength = 0;
+let startAtS;
+let endAt;
+let clipLength;
 let seriesName;
 let audioDirectory;
 let directory;
@@ -38,9 +38,9 @@ let ytOutput;
 program
     .version('0.0.1')
     .usage('[options] <directory> <output dir(only when dowloading from yt)> ')
-    .option('-s, --start [start]', 'in s: cut away start from the beginning to remove advertisment etc.', 18)
-    .option('-e, --end [end]', 'in s: cut away end from the end to remove advertisment etc.', 18)
-    .option('-d, --duration [duration]', 'the duration of the clips the file gets split to', 18)
+    .option('-s, --start [start]', 'in s: cut away start from the beginning to remove advertisment etc.', 0)
+    .option('-e, --end [end]', 'in s: cut away end from the end to remove advertisment etc.', 0)
+    .option('-d, --duration [duration]', 'the duration of the clips the file gets split to', 180)
     .option('-n, --name [name]', 'the name of the clips and metadata', null)
     .option('-c, --cover', 'if a cover photo should be added to the mp3 metadata', true)
     .option('-m, --metadata', 'adds metadata to all generated clips to combine them to one compilation', true)
