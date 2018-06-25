@@ -2,7 +2,7 @@
  * @Author: Julian Beck
  * @Date: 2018-06-25 09:34:35
  * @LastEditors: OBKoro1
- * @LastEditTime: 2018-06-25 11:13:55
+ * @LastEditTime: 2018-06-25 15:08:23
  * @Description: Video to mp3 converter
  */
 const ffmpeg = require('fluent-ffmpeg');
@@ -18,7 +18,10 @@ const chalk = require('chalk');
 const logUpdate = require('log-update');
 const program = require('commander');
 const upath = require("upath");
-const youtubedl = require('youtube-dl');
+const ytdl = require('ytdl-core');
+const ytlist = require('youtube-playlist');
+const isUrl = require('is-url');
+
 //gets set AFTER the path env has been set
 let ffmetadata;
 
@@ -28,6 +31,7 @@ let clipLength = 0;
 let seriesName;
 let audioDirectory;
 let directory;
+let ytOutput;
 let takeCover = true;
 
 
@@ -44,13 +48,21 @@ program
     .option('-r, --rename', 'removes text inside brackets to cleanup filenames like (1080p)', false)
     .parse(process.argv);
 
-directory = upath.normalize(program.args[0]).replace(/\/$/, "");
+
+if (typeof program.args[1] !== "undefined") {
+     //only gets used when downloading yt videos. location for downloaded videos
+    ytOutput = upath.normalize(program.args[1]).replace(/\/$/, "");
+}
 startAt = Number(program.start);
 endAt = Number(program.end);
 clipLength = Number(program.duration);
 audioDirectory = program.output;
 seriesName = program.name;
 takeCover = (program.cover == "true");
+
+if (!program.args.length) {
+    program.help();
+}
 
 
 /**
@@ -178,6 +190,8 @@ async function splitTrack(baseDirectory, outputDirectory, name, duration) {
         await segmentMp3(path.join(baseDirectory, "temp.mp3"), path.join(outputDirectory, getSegmentName(name, durationIndex, durationIndex + clipLength)), durationIndex, clipLength);
         parts++;
     }
+    console.log(`splitting ${name} into ${chalk.blue(parts)} parts`);
+
 }
 
 
@@ -307,10 +321,39 @@ function rename(files) {
 
 
 /**
- * Main
+ * Mainytdl.validateURL(directory)
  */
 async function main() {
+
+    directory = program.args[0];
     //startup
+    if (isUrl(directory)) {
+        if (directory.indexOf("https://www.youtube.com/") >= 0) {
+            //run get playlist
+            console.log(`detected youtube url....`)
+            let videos = await getPlaylist(directory);
+            if (videos.length == 0) videos = [directory];
+            console.log(`downloading ${chalk.blue(videos.length)} video(s)...`)
+            let i = 1;
+            for (let video of videos) {
+                if (ytdl.validateURL(video)) {
+                    let name = await getVideoTitle(video);
+                    logUpdate(`downloading ${chalk.blue(name)}, video ${chalk.blue(i)}/${chalk.blue(videos.length)}...`);
+                    await downloadVideo(video, path.join(ytOutput, name + ".mp4"));
+                    i++;
+                }                
+            }
+            console.log(`downloaded ${chalk.blue(videos.length)} video(s)`);
+            //set directory to ytOutput
+            directory = ytOutput;
+        } else {
+            throw "couldnt download youtube video, please only use youtube links for downloading videos"
+        }
+
+    } else {
+        //cleanup directory
+        directory = upath.normalize(program.args[0]).replace(/\/$/, "");
+    }
     await checkffmpeg();
     let files = await getFiles(directory);
     files = program.rename ? rename(files) : files
@@ -358,14 +401,44 @@ async function main() {
 }
 
 
-if (!program.args.length) {
-    program.help();
-}
-
 
 main();
 
+/**
+ * Downloads youtube video and saves it as mp4
+ * @param {String} url of the youtube video
+ * @param {String} dir where the video should be placed
+ */
+async function downloadVideo(url, dir) {
+    return new Promise((resolve, reject) => {
+        ytdl(url)
+            .pipe(fs.createWriteStream(dir)).on('finish', () => {
+                resolve();
+            });
+    });
+}
+/**
+ * Returns array of links if url is a playlist
+ * @param {String} url of the youtube video 
+ */
+async function getPlaylist(url) {
+    return new Promise((resolve, reject) => {
+        ytlist(url, 'url').then(res => {
+            resolve(res.data.playlist);
+        });
+    });
+}
 
 
-
-
+/**
+ * Gets the title of a video
+ * @param {} url 
+ */
+async function getVideoTitle(url) {
+    return new Promise((resolve, reject) => {
+        ytdl.getInfo(url, (err, info) => {
+            if (err) throw reject(err);
+            resolve(info.title);
+        })
+    });
+}
