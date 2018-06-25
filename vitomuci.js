@@ -2,7 +2,7 @@
  * @Author: Julian Beck
  * @Date: 2018-06-25 09:34:35
  * @LastEditors: OBKoro1
- * @LastEditTime: 2018-06-25 10:03:28
+ * @LastEditTime: 2018-06-25 10:48:13
  * @Description: Video to mp3 converter
  */
 const ffmpeg = require('fluent-ffmpeg');
@@ -26,7 +26,8 @@ let endAt = 0;
 let clipLength = 0;
 let seriesName;
 let audioDirectory;
-let directory
+let directory;
+let takeCover = true;
 
 
 
@@ -37,7 +38,7 @@ program
     .option('-e, --end [end]', 'in s: cut away end from the end to remove advertisment etc.', 18)
     .option('-d, --duration [duration]', 'the duration of the clips the file gets split to', 18)
     .option('-n, --name [name]', 'the name of the clips and metadata', null)
-    .option('-c, --cover [cover]', 'if a cover photo should be added to the mp3 metadata', true)
+    .option('-c, --cover [cover]', 'if a cover photo should be added to the mp3 metadata', "true")
     .option('-o, --output [output]', 'name of the output folder', "audio")
     .option('-r, --rename', 'removes text inside brackets to cleanup filenames like (1080p)', false)
     .parse(process.argv);
@@ -48,6 +49,7 @@ endAt = Number(program.end);
 clipLength = Number(program.duration);
 audioDirectory = program.output;
 seriesName = program.name;
+takeCover = (program.cover == "true");
 
 
 /**
@@ -231,10 +233,10 @@ function writeMusicMetadata(file, compilationName, cover) {
             album: compilationName,
             date: isodate
         };
-        var options = {
-            attachments: program.cover ? [cover] : false,
-        };
 
+        let options = takeCover ? {
+            attachments: [cover]
+        } : {};
         ffmetadata.write(file, data, options, function (err) {
             if (err) console.error("Error writing metadata", err);
             resolve();
@@ -251,7 +253,7 @@ function writeMusicMetadata(file, compilationName, cover) {
  * @param {String} picTime 
  */
 function getCoverPicture(file, baseDirectory, picTime) {
-    if (program.cover)
+    if (takeCover)
         console.log(`took cover picture from ${chalk.blue(file)} at ${chalk.blue(picTime)}`);
     return new Promise((resolve, reject) => {
         ffmpeg(file)
@@ -335,6 +337,7 @@ async function main() {
     }
 
     let coverPath = await getCoverPicture(files[0], baseDirectory, startAt)
+    coverPath = upath.normalize(coverPath);
     let compilationName = files[0].substr(0, files[0].lastIndexOf('.')) || files[0];
 
     //set metadata name to first file in array if not set
