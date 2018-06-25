@@ -1,14 +1,13 @@
 {
   "name": "vitomuci",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "download youtube videos or convert videos to mp3 and split them into short clips",
   "main": "vitomuci.js",
   "directories": {
     "doc": "doc"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "debug": "node --nolazy --inspect-brk=9229 index.js -s 180 -e 180 -d 240 -r testfolder\test[0](aasdfasf)\test[0](aasdfasf)ss?.mp4"
+    "test": "mocha"
   },
   "author": "",
   "license": "ISC",
@@ -46,5 +45,10 @@
     "type": "git",
     "url": "https://github.com/jufabeck2202/vitomuci"
   },
-  "homepage": "https://github.com/jufabeck2202/vitomuci#readme"
+  "homepage": "https://github.com/jufabeck2202/vitomuci#readme",
+  "devDependencies": {
+    "chai": "^4.1.2",
+    "command-line-test": "^1.0.10",
+    "mocha": "^5.2.0"
+  }
 }
