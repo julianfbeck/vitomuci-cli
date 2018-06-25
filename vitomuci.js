@@ -2,7 +2,7 @@
  * @Author: Julian Beck
  * @Date: 2018-06-25 09:34:35
  * @LastEditors: OBKoro1
- * @LastEditTime: 2018-06-25 15:08:23
+ * @LastEditTime: 2018-06-25 15:48:09
  * @Description: Video to mp3 converter
  */
 const ffmpeg = require('fluent-ffmpeg');
@@ -32,25 +32,25 @@ let seriesName;
 let audioDirectory;
 let directory;
 let ytOutput;
-let takeCover = true;
 
 
 
 program
     .version('0.0.1')
-    .usage('[options] <directory>')
+    .usage('[options] <directory> <output dir(only when dowloading from yt)> ')
     .option('-s, --start [start]', 'in s: cut away start from the beginning to remove advertisment etc.', 18)
     .option('-e, --end [end]', 'in s: cut away end from the end to remove advertisment etc.', 18)
     .option('-d, --duration [duration]', 'the duration of the clips the file gets split to', 18)
     .option('-n, --name [name]', 'the name of the clips and metadata', null)
-    .option('-c, --cover [cover]', 'if a cover photo should be added to the mp3 metadata', "true")
+    .option('-c, --cover', 'if a cover photo should be added to the mp3 metadata', true)
+    .option('-m, --metadata', 'adds metadata to all generated clips to combine them to one compilation', true)
     .option('-o, --output [output]', 'name of the output folder', "audio")
     .option('-r, --rename', 'removes text inside brackets to cleanup filenames like (1080p)', false)
     .parse(process.argv);
 
 
 if (typeof program.args[1] !== "undefined") {
-     //only gets used when downloading yt videos. location for downloaded videos
+    //only gets used when downloading yt videos. location for downloaded videos
     ytOutput = upath.normalize(program.args[1]).replace(/\/$/, "");
 }
 startAt = Number(program.start);
@@ -58,7 +58,6 @@ endAt = Number(program.end);
 clipLength = Number(program.duration);
 audioDirectory = program.output;
 seriesName = program.name;
-takeCover = (program.cover == "true");
 
 if (!program.args.length) {
     program.help();
@@ -249,7 +248,7 @@ function writeMusicMetadata(file, compilationName, cover) {
             date: isodate
         };
 
-        let options = takeCover ? {
+        let options = program.cover ? {
             attachments: [cover]
         } : {};
         ffmetadata.write(file, data, options, function (err) {
@@ -268,7 +267,7 @@ function writeMusicMetadata(file, compilationName, cover) {
  * @param {String} picTime 
  */
 function getCoverPicture(file, baseDirectory, picTime) {
-    if (takeCover)
+    if (program.cover)
         console.log(`took cover picture from ${chalk.blue(file)} at ${chalk.blue(picTime)}`);
     return new Promise((resolve, reject) => {
         ffmpeg(file)
@@ -337,11 +336,12 @@ async function main() {
             let i = 1;
             for (let video of videos) {
                 if (ytdl.validateURL(video)) {
-                    let name = await getVideoTitle(video);
-                    logUpdate(`downloading ${chalk.blue(name)}, video ${chalk.blue(i)}/${chalk.blue(videos.length)}...`);
-                    await downloadVideo(video, path.join(ytOutput, name + ".mp4"));
+                    let title = await getVideoTitle(video);
+                    title = title.replace(/[/\\?%*:|"<>]/g, '-'); //make sure there are no illeagale characters
+                    logUpdate(`downloading ${chalk.blue(title)}, video ${chalk.blue(i)}/${chalk.blue(videos.length)}...`);
+                    await downloadVideo(video, path.join(ytOutput, title + ".mp4"));
                     i++;
-                }                
+                }
             }
             console.log(`downloaded ${chalk.blue(videos.length)} video(s)`);
             //set directory to ytOutput
@@ -354,6 +354,7 @@ async function main() {
         //cleanup directory
         directory = upath.normalize(program.args[0]).replace(/\/$/, "");
     }
+
     await checkffmpeg();
     let files = await getFiles(directory);
     files = program.rename ? rename(files) : files
@@ -391,13 +392,16 @@ async function main() {
     }
 
     //updating meta data
-    fs.readdir(outputDirectory, async function (err, files) {
-        for (let file of files) {
-            await writeMusicMetadata(path.join(outputDirectory, file), seriesName, coverPath);
-        }
-        console.log(`updated metadata of ${chalk.blue(files.length)} Files`)
-        await deleteFile(coverPath);
-    })
+    if (program.metadata) {
+        fs.readdir(outputDirectory, async function (err, files) {
+            for (let file of files) {
+                await writeMusicMetadata(path.join(outputDirectory, file), seriesName, coverPath);
+            }
+            console.log(`updated metadata of ${chalk.blue(files.length)} Files`)
+        })
+    }
+    await deleteFile(coverPath);
+
 }
 
 
