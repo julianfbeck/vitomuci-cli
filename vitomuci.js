@@ -2,7 +2,7 @@
  * @Author: Julian Beck
  * @Date: 2018-06-25 09:34:35
  * @LastEditors: OBKoro1
- * @LastEditTime: 2018-06-25 10:48:13
+ * @LastEditTime: 2018-06-25 11:13:55
  * @Description: Video to mp3 converter
  */
 const ffmpeg = require('fluent-ffmpeg');
@@ -18,6 +18,7 @@ const chalk = require('chalk');
 const logUpdate = require('log-update');
 const program = require('commander');
 const upath = require("upath");
+const youtubedl = require('youtube-dl');
 //gets set AFTER the path env has been set
 let ffmetadata;
 
@@ -364,45 +365,7 @@ if (!program.args.length) {
 
 main();
 
-/** Depricated!!
-async function downloadFfpeg() {
-    console.log(chalk.green('Looking for ffmpeg instalation'));
-    //TODO check if envirment is set
-    if (!fs.existsSync("./ffmpeg")) {
-        console.log(chalk.red("ffmpeg missing"));
-        console.log(chalk.red("Download ffmpeg......."));
-        await downloadFfmpeg("https://ffmpeg.zeranoe.com/builds/win64/static/ffmpeg-4.0-win64-static.zip");
-        // unzip
-        let zip = new AdmZip("ffmpeg.zip");
-        zip.extractAllTo("./ffmpeg", true);
 
-        fs.unlink('ffmpeg.zip', (err) => {
-            if (err) throw err;
-        });
-        console.log(chalk.green("Finish instalation"));
-    };
-    //set path
-    fs.readdirSync("./ffmpeg").forEach(file => {
-        ffmpegPath = `/ffmpeg/${file}/bin/ffmpeg.exe`;
-        ffprobePath = `/ffmpeg/${file}/bin/ffprobe.exe`;
-        process.env.FFMPEG_PATH = path.join(__dirname, ffmpegPath);
-        ffmetadata = require("ffmetadata");
-        // (__dirname + ffmpegPath).replace("/","\\");
-        ffprobe.FFPROBE_PATH = __dirname + ffprobePath;
-        ffmpeg.setFfmpegPath(path.join(__dirname, ffmpegPath));
-        ffmpeg.setFfprobePath(path.join(__dirname, ffprobePath));
-        console.log(chalk.green('ffmpeg installed at:' + ffmpegPath));
-    })
-}
-//depricated
-async function downloadFfmpeg(file_url) {
-    return new Promise((resolve, reject) => {
-        let file = fs.createWriteStream("ffmpeg.zip");
-        let request = https.get(file_url, function (response) {
-            response.pipe(file).on('finish', function () {
-                resolve();
-            })
-        });
-    });
-};
-*/
+
+
+
