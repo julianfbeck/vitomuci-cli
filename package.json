@@ -1,7 +1,7 @@
 {
   "name": "ffmtest",
   "version": "1.0.0",
-  "description": "Zeranoe FFmpeg Builds <http://ffmpeg.zeranoe.com/builds/>",
+  "description": "download youtube videos or convert videos to mp3 and split them into short clips",
   "main": "index.js",
   "directories": {
     "doc": "doc"
