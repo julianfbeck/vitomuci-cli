@@ -1,3 +1,10 @@
+/*
+ * @Author: Julian Beck
+ * @Date: 2018-06-25 09:34:35
+ * @LastEditors: OBKoro1
+ * @LastEditTime: 2018-06-25 10:03:28
+ * @Description: Video to mp3 converter
+ */
 const ffmpeg = require('fluent-ffmpeg');
 const ffmpegPath = require('@ffmpeg-installer/ffmpeg').path;
 const ffprobePath = require('@ffprobe-installer/ffprobe').path;
@@ -33,8 +40,6 @@ program
     .option('-c, --cover [cover]', 'if a cover photo should be added to the mp3 metadata', true)
     .option('-o, --output [output]', 'name of the output folder', "audio")
     .option('-r, --rename', 'removes text inside brackets to cleanup filenames like (1080p)', false)
-
-
     .parse(process.argv);
 
 directory = upath.normalize(program.args[0]).replace(/\/$/, "");
@@ -117,14 +122,14 @@ function getFiles(input) {
 function convertToMp3(baseDirectory, input) {
     return new Promise((resolve, reject) => {
         let fileInfo;
-        logUpdate(`Converting ${input} to mp3`);
+        logUpdate(`converting ${input} to mp3`);
         ffmpeg(input).format('mp3').save(baseDirectory + "/temp.mp3").on('error', console.error)
             .on('codecData', function (data) {
                 fileInfo = data;
             }).on('progress', function (progress) {
-                logUpdate(`Converting ${input} to mp3: ${chalk.blue(progress.timemark)}`);
+                logUpdate(`converting ${input} to mp3: ${chalk.blue(progress.timemark)}`);
             }).on('end', function (stdout, stderr) {
-
+                console.log(`converting ${input} to mp3`);
                 resolve(fileInfo);
             });
     });
@@ -161,7 +166,7 @@ async function splitTrack(baseDirectory, outputDirectory, name, duration) {
     let durationIndex = startAt;
     let parts = 0;
     while ((durationIndex + clipLength) <= (duration - endAt)) {
-        logUpdate(`Splitting ${name} into ${chalk.blue(parts+1)} parts`);
+        logUpdate(`splitting ${name} into ${chalk.blue(parts+1)} parts`);
         await segmentMp3(path.join(baseDirectory, "temp.mp3"), path.join(outputDirectory, getSegmentName(name, durationIndex, durationIndex + clipLength)), durationIndex, clipLength);
         durationIndex += clipLength
         parts++;
@@ -227,7 +232,7 @@ function writeMusicMetadata(file, compilationName, cover) {
             date: isodate
         };
         var options = {
-            attachments: [cover],
+            attachments: program.cover ? [cover] : false,
         };
 
         ffmetadata.write(file, data, options, function (err) {
@@ -246,7 +251,8 @@ function writeMusicMetadata(file, compilationName, cover) {
  * @param {String} picTime 
  */
 function getCoverPicture(file, baseDirectory, picTime) {
-    console.log("take cover picture from " + file + " at " + picTime);
+    if (program.cover)
+        console.log(`took cover picture from ${chalk.blue(file)} at ${chalk.blue(picTime)}`);
     return new Promise((resolve, reject) => {
         ffmpeg(file)
             .screenshots({
@@ -292,7 +298,7 @@ function rename(files) {
         renamedFiles.push(newName);
         fs.renameSync(file, newName);
     });
-    console.log("Renamed files to " + renamedFiles);
+    console.log("renamed files to " + renamedFiles);
     return renamedFiles;
 }
 
@@ -315,7 +321,7 @@ async function main() {
     if (fs.existsSync(path.join(baseDirectory, "temp.mp3")))
         await deleteFile(path.join(baseDirectory, "temp.mp3"));
 
-    console.log(`Found ${chalk.blue(files.length)} Files, start converting...`)
+    console.log(`found ${chalk.blue(files.length)} files, start converting...`)
 
     //main loop
     for (let item of files) {
@@ -342,7 +348,7 @@ async function main() {
         for (let file of files) {
             await writeMusicMetadata(path.join(outputDirectory, file), seriesName, coverPath);
         }
-        console.log(`updated metadata of ${files.length} Files`)
+        console.log(`updated metadata of ${chalk.blue(files.length)} Files`)
         await deleteFile(coverPath);
     })
 }
