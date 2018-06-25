@@ -1,8 +1,9 @@
+#!/usr/bin/env node
 /*
  * @Author: Julian Beck
  * @Date: 2018-06-25 09:34:35
  * @LastEditors: OBKoro1
- * @LastEditTime: 2018-06-25 16:27:06
+ * @LastEditTime: 2018-06-25 16:48:27
  * @Description: Video to mp3 converter
  */
 const ffmpeg = require('fluent-ffmpeg');
