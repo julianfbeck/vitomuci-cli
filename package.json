@@ -1,5 +1,5 @@
 {
-  "name": "ffmtest",
+  "name": "vitomuci",
   "version": "1.0.0",
   "description": "download youtube videos or convert videos to mp3 and split them into short clips",
   "main": "index.js",
@@ -39,7 +39,7 @@
     "spit audio"
   ],
   "bin": {
-    "vitomuci": "./vitomuci.js"
+    "vitomuci": "node vitomuci.js"
   },
   "repository": {
     "type": "git",
