@@ -22,6 +22,7 @@ const upath = require("upath");
 const ytdl = require('ytdl-core');
 const ytlist = require('youtube-playlist');
 const isUrl = require('is-url');
+const glob = require("glob")
 
 //gets set AFTER the path env has been set
 let ffmetadata;
@@ -88,6 +89,10 @@ async function checkffmpeg() {
  */
 function getFiles(input) {
     try {
+        if (process.argv.length > 3) {
+            console.log(`Found ${chalk.blue(process.argv.slice(2,process.argv.length))}`);
+            return (process.argv.slice(2, process.argv.length));
+        }
         //directory
         if (fs.lstatSync(input).isDirectory()) {
             console.log("searching " + chalk.blue(input) + " for files...");
@@ -102,10 +107,21 @@ function getFiles(input) {
         }
         throw "no dir"
     } catch (error) {
-        if(process.argv.length >=3)
-            console.log(`Found ${chalk.blue(process.argv.slice(2,process.argv.length))}`);    
-            return(process.argv.slice(2,process.argv.length));    
-        throw "no file found"
+        console.log("searching for matching files... " + input);
+        //remove brackets
+        let removeB = "";
+        for (var i = 0; i < input.length; i++) {
+            if (input.charAt(i) == "[") {
+                removeB = removeB.concat("[[]");
+            } else if (input.charAt(i) == "]") {
+                removeB = removeB.concat("[]]");
+            } else {
+                removeB = removeB.concat(input.charAt(i));
+            }
+        }
+        return glob.sync(removeB);
+
+        
     }
 }
 
