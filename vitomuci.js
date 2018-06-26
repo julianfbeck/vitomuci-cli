@@ -54,17 +54,22 @@ if (typeof program.args[1] !== "undefined") {
     //only gets used when downloading yt videos. location for downloaded videos
     ytOutput = upath.normalize(program.args[1]).replace(/\/$/, "");
 }
+
 startAt = Number(program.start);
 endAt = Number(program.end);
 clipLength = Number(program.duration);
 audioDirectory = program.output;
 seriesName = program.name;
 
-if (!program.args.length) {
-    program.help();
+if (require.main === module) {
+    main();
+    if (!program.args.length) {
+        program.help();
+    }
 }
 
-main();
+module.exports.checkffmpeg = checkffmpeg;
+module.exports.downloadVideo = downloadVideo;
 
 /**
  * Main
@@ -213,7 +218,7 @@ function getFiles(input) {
         //return glob search
         return glob.sync(removeB);
 
-        
+
     }
 }
 
