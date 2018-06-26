@@ -1,9 +1,10 @@
 #!/usr/bin/env node
+
 /*
  * @Author: Julian Beck
  * @Date: 2018-06-25 09:34:35
  * @LastEditors: OBKoro1
- * @LastEditTime: 2018-06-26 08:24:15
+ * @LastEditTime: 2018-06-26 08:28:50
  * @Description: Video to mp3 converter
  */
 const ffmpeg = require('fluent-ffmpeg');
@@ -33,7 +34,7 @@ let seriesName;
 let audioDirectory;
 let directory;
 let ytOutput;
-
+let videoFormats = [".mkv", ".mp4", ".avi", ".wmv", ".mov", ".amv", ".mpg", ".flv"];
 
 
 program
@@ -128,6 +129,22 @@ function getFiles(input) {
         }
     });
 }
+
+/**
+ * Checks if found files are media files
+ * @param {Array} files array of files
+ */
+function verifyFiles(files) {
+    let mediaFiles = [];
+    files.forEach(file => {
+        if (videoFormats.includes(path.extname(file))) {
+            mediaFiles.push(upath.normalize(file));
+        }
+    });
+    return mediaFiles;
+
+}
+
 
 /**
  * Converts a media file into a mp3 file called temp.mp3
@@ -357,7 +374,11 @@ async function main() {
     }
 
     await checkffmpeg();
+    //get files
     let files = await getFiles(directory);
+    //check if files are media files
+    files = verifyFiles(files);
+    //rename files
     files = program.rename ? rename(files) : files
 
     let baseDirectory = path.dirname(files[0]);
