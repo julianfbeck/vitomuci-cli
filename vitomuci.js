@@ -64,6 +64,97 @@ if (!program.args.length) {
     program.help();
 }
 
+main();
+
+/**
+ * Main
+ */
+async function main() {
+
+    directory = program.args[0];
+    //startup
+    if (isUrl(directory)) {
+        if (directory.indexOf("https://www.youtube.com/") >= 0) {
+            //run get playlist
+            console.log(`detected youtube url....`)
+            let videos = await getPlaylist(directory);
+            if (videos.length == 0) videos = [directory];
+            console.log(`downloading ${chalk.blue(videos.length)} video(s)...`)
+            let i = 1;
+            for (let video of videos) {
+                if (ytdl.validateURL(video)) {
+                    let title = await getVideoTitle(video);
+                    title = title.replace(/[/\\?%*:|"<>]/g, '-'); //make sure there are no illeagale characters
+                    logUpdate(`downloading ${chalk.blue(title)}, video ${chalk.blue(i)}/${chalk.blue(videos.length)}...`);
+                    await downloadVideo(video, path.join(ytOutput, title + ".mp4"));
+                    i++;
+                }
+            }
+            console.log(`downloaded ${chalk.blue(videos.length)} video(s)`);
+            //set directory to ytOutput
+            directory = ytOutput;
+        } else {
+            throw "couldnt download youtube video, please only use youtube links for downloading videos"
+        }
+
+    } else {
+        //cleanup directory upath.normalize(program.args[0]).replace(/\/$/, "");
+        directory = program.args[0];
+    }
+
+    await checkffmpeg();
+    //get files
+    let files = getFiles(directory);
+    //check if files are media files
+    files = verifyFiles(files);
+    //rename files
+    files = program.rename ? rename(files) : files
+    let baseDirectory = path.dirname(files[0]);
+    //let baseDirectory = path.dirname(files[0]);
+    let outputDirectory = path.join(baseDirectory, audioDirectory);
+
+    //create folders, delete existing files
+    if (!fs.existsSync(outputDirectory))
+        fs.mkdirSync(outputDirectory);
+    if (fs.existsSync(path.join(baseDirectory, "temp.mp3")))
+        await deleteFile(path.join(baseDirectory, "temp.mp3"));
+
+    console.log(`found ${chalk.blue(files.length)} files, start converting...`)
+
+    //main loop
+    for (let item of files) {
+        let seconds = await getFileLength(item);
+        await convertToMp3(baseDirectory, item);
+        let filename = path.basename(item)
+        let removeType = filename.substr(0, filename.lastIndexOf('.')) || filename;
+        await splitTrack(baseDirectory, outputDirectory, filename, Number(seconds));
+        await deleteFile(path.join(baseDirectory, "temp.mp3"));
+
+    }
+
+    let coverPath = await getCoverPicture(files[0], baseDirectory, startAt)
+    coverPath = upath.normalize(coverPath);
+    let compilationName = files[0].substr(0, files[0].lastIndexOf('.')) || files[0];
+
+    //set metadata name to first file in array if not set
+    if (seriesName == null) {
+        let filename = path.basename(files[0])
+        seriesName = filename.substr(0, filename.lastIndexOf('.')) || filename;
+    }
+
+    //updating meta data
+    if (program.metadata) {
+        fs.readdir(outputDirectory, async function (err, files) {
+            for (let file of files) {
+                await writeMusicMetadata(path.join(outputDirectory, file), seriesName, coverPath);
+            }
+            console.log(`updated metadata of ${chalk.blue(files.length)} Files`)
+        })
+    }
+    await deleteFile(coverPath);
+
+}
+
 
 /**
  * Sets the required ffmpeg path to all 
@@ -333,99 +424,6 @@ function rename(files) {
 
 
 /**
- * Mainytdl.validateURL(directory)
- */
-async function main() {
-
-    directory = program.args[0];
-    //startup
-    if (isUrl(directory)) {
-        if (directory.indexOf("https://www.youtube.com/") >= 0) {
-            //run get playlist
-            console.log(`detected youtube url....`)
-            let videos = await getPlaylist(directory);
-            if (videos.length == 0) videos = [directory];
-            console.log(`downloading ${chalk.blue(videos.length)} video(s)...`)
-            let i = 1;
-            for (let video of videos) {
-                if (ytdl.validateURL(video)) {
-                    let title = await getVideoTitle(video);
-                    title = title.replace(/[/\\?%*:|"<>]/g, '-'); //make sure there are no illeagale characters
-                    logUpdate(`downloading ${chalk.blue(title)}, video ${chalk.blue(i)}/${chalk.blue(videos.length)}...`);
-                    await downloadVideo(video, path.join(ytOutput, title + ".mp4"));
-                    i++;
-                }
-            }
-            console.log(`downloaded ${chalk.blue(videos.length)} video(s)`);
-            //set directory to ytOutput
-            directory = ytOutput;
-        } else {
-            throw "couldnt download youtube video, please only use youtube links for downloading videos"
-        }
-
-    } else {
-        //cleanup directory upath.normalize(program.args[0]).replace(/\/$/, "");
-        directory = program.args[0];
-    }
-
-    await checkffmpeg();
-    //get files
-    let files = getFiles(directory);
-    //check if files are media files
-    files = verifyFiles(files);
-    //rename files
-    files = program.rename ? rename(files) : files
-    let baseDirectory = path.dirname(files[0]);
-    //let baseDirectory = path.dirname(files[0]);
-    let outputDirectory = path.join(baseDirectory, audioDirectory);
-
-    //create folders, delete existing files
-    if (!fs.existsSync(outputDirectory))
-        fs.mkdirSync(outputDirectory);
-    if (fs.existsSync(path.join(baseDirectory, "temp.mp3")))
-        await deleteFile(path.join(baseDirectory, "temp.mp3"));
-
-    console.log(`found ${chalk.blue(files.length)} files, start converting...`)
-
-    //main loop
-    for (let item of files) {
-        let seconds = await getFileLength(item);
-        await convertToMp3(baseDirectory, item);
-        let filename = path.basename(item)
-        let removeType = filename.substr(0, filename.lastIndexOf('.')) || filename;
-        await splitTrack(baseDirectory, outputDirectory, filename, Number(seconds));
-        await deleteFile(path.join(baseDirectory, "temp.mp3"));
-
-    }
-
-    let coverPath = await getCoverPicture(files[0], baseDirectory, startAt)
-    coverPath = upath.normalize(coverPath);
-    let compilationName = files[0].substr(0, files[0].lastIndexOf('.')) || files[0];
-
-    //set metadata name to first file in array if not set
-    if (seriesName == null) {
-        let filename = path.basename(files[0])
-        seriesName = filename.substr(0, filename.lastIndexOf('.')) || filename;
-    }
-
-    //updating meta data
-    if (program.metadata) {
-        fs.readdir(outputDirectory, async function (err, files) {
-            for (let file of files) {
-                await writeMusicMetadata(path.join(outputDirectory, file), seriesName, coverPath);
-            }
-            console.log(`updated metadata of ${chalk.blue(files.length)} Files`)
-        })
-    }
-    await deleteFile(coverPath);
-
-}
-
-
-
-main();
-
-/**
  * Downloads youtube video and saves it as mp4
  * @param {String} url of the youtube video
  * @param {String} dir where the video should be placed
@@ -438,6 +436,8 @@ async function downloadVideo(url, dir) {
             });
     });
 }
+
+
 /**
  * Returns array of links if url is a playlist
  * @param {String} url of the youtube video 
