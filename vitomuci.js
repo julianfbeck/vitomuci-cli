@@ -52,7 +52,9 @@ program
 
 if (typeof program.args[1] !== "undefined") {
     //only gets used when downloading yt videos. location for downloaded videos
-    ytOutput = upath.normalize(program.args[1]).replace(/\/$/, "");
+    ytOutput = upath.normalize(program.args[1]);
+    //ytOutput = upath.normalize(program.args[1]).replace(/\/$/, "");
+
 }
 
 startAt = Number(program.start);
@@ -75,7 +77,6 @@ module.exports.downloadVideo = downloadVideo;
  * Main
  */
 async function main() {
-
     directory = program.args[0];
     //startup
     if (isUrl(directory)) {
@@ -106,7 +107,6 @@ async function main() {
         //cleanup directory upath.normalize(program.args[0]).replace(/\/$/, "");
         directory = program.args[0];
     }
-
     await checkffmpeg();
     //get files
     let files = getFiles(directory);
@@ -185,7 +185,7 @@ async function checkffmpeg() {
  */
 function getFiles(input) {
     try {
-        if (process.argv.length > 3) {
+        if (process.argv.length > 3 && !isUrl(process.argv[2])) {
             //cli supports regex matching
             return (process.argv.slice(2, process.argv.length));
         }
