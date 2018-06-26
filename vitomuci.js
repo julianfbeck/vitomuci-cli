@@ -98,7 +98,6 @@ function getFiles(input) {
             console.log("searching " + chalk.blue(input) + " for files...");
             let files = []
             fs.readdirSync(input).forEach(file => {
-                console.log(file);
                 let stats = fs.statSync(path.join(input, file));
                 if (stats.isFile() && !(file === "temp.mp3"))
                     files.push(path.join(input, file));
@@ -120,6 +119,7 @@ function getFiles(input) {
                 removeB = removeB.concat(input.charAt(i));
             }
         }
+        //return glob search
         return glob.sync(removeB);
 
         
@@ -199,10 +199,10 @@ async function splitTrack(baseDirectory, outputDirectory, name, duration) {
         parts++;
     }
     if (((duration - endAt) - durationIndex) >= 30) {
-        await segmentMp3(path.join(baseDirectory, "temp.mp3"), path.join(outputDirectory, getSegmentName(name, durationIndex, durationIndex + clipLength)), durationIndex, clipLength);
+        logUpdate(`splitting ${name} into ${chalk.blue(parts+1)} parts`);
+        await segmentMp3(path.join(baseDirectory, "temp.mp3"), path.join(outputDirectory, getSegmentName(name, durationIndex, duration - endAt)), durationIndex, clipLength);
         parts++;
     }
-    console.log(`splitting ${name} into ${chalk.blue(parts)} parts`);
 
 }
 
