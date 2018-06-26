@@ -1,5 +1,5 @@
 
-# VITOMUCI
+# VITOMUCI [![npm version](https://badge.fury.io/js/vitomuci.svg)](https://badge.fury.io/js/vitomuci)
 **Vitomuci** is a video to mp3 converter that splits the video file into small audio files and combines them into one album with a generated cover. It is also possible to download videos and playlists directly and split them into clips.
 It is inspired by the [sub2srs](http://subs2srs.sourceforge.net/#extract_audio) extract Audio from Media Tool from sub2srs.
 ## Installation
