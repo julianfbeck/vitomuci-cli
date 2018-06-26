@@ -90,7 +90,7 @@ async function checkffmpeg() {
 function getFiles(input) {
     try {
         if (process.argv.length > 3) {
-            console.log(`Found ${chalk.blue(process.argv.slice(2,process.argv.length))}`);
+            //cli supports regex matching
             return (process.argv.slice(2, process.argv.length));
         }
         //directory
@@ -107,6 +107,7 @@ function getFiles(input) {
         }
         throw "no dir"
     } catch (error) {
+        //falls back here if cli doesnt supports regex matching
         console.log("searching for matching files... " + input);
         //remove brackets
         let removeB = "";
