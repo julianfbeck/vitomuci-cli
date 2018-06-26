@@ -26,7 +26,6 @@ const isUrl = require('is-url');
 
 //gets set AFTER the path env has been set
 let ffmetadata;
-
 let startAtS;
 let endAt;
 let clipLength;
@@ -89,45 +88,44 @@ async function checkffmpeg() {
  * @returns {Promise} array with files
  */
 function getFiles(input) {
-    return new Promise((resolve, reject) => {
-        try {
-            //directory
-            if (fs.lstatSync(input).isDirectory()) {
-                console.log("searching " + input + " for files...");
-                fs.readdir(input, (err, items) => {
-                    let files = []
-                    items.forEach((file) => {
-                        let stats = fs.statSync(path.join(input, file));
-                        if (stats.isFile() && !(file === "temp.mp3"))
-                            files.push(path.join(input, file));
-                    });
-                    resolve(files.sort());
-                })
-            }
-        } catch (error) {
-            //single file
-            if (fs.existsSync(input)) {
-                resolve([input]);
-            }
-            //remove brackets
-            let removeB = ""
-            for (var i = 0; i < input.length; i++) {
-                if (input.charAt(i) == "[") {
-                    removeB = removeB.concat("[[]");
-                } else if (input.charAt(i) == "]") {
-                    removeB = removeB.concat("[]]");
-                } else {
-                    removeB = removeB.concat(input.charAt(i));
-                }
-            }
-            console.log("searching for matching files... " + removeB);
-            glob(removeB, function (er, files) {
-                console.log(files.length + " Files found");
-                resolve(files.sort());
-            })
-            reject("no file was found")
+    try {
+        //directory
+        if (fs.lstatSync(input).isDirectory()) {
+            console.log("searching " + chalk.blue(input) + " for files...");
+            let files = []
+            fs.readdirSync(input).forEach(file => {
+                console.log(file);
+                let stats = fs.statSync(path.join(input, file));
+                if (stats.isFile() && !(file === "temp.mp3"))
+                    files.push(path.join(input, file));
+            });
+            return (files.sort());
         }
-    });
+        throw "no dir"
+    } catch (error) {
+        console.log(input);
+        //single file
+        if (fs.existsSync(input)) {
+            return ([input]);
+        }
+        //remove brackets
+        let removeB = ""
+        for (var i = 0; i < input.length; i++) {
+            if (input.charAt(i) == "[") {
+                removeB = removeB.concat("[[]");
+            } else if (input.charAt(i) == "]") {
+                removeB = removeB.concat("[]]");
+            } else {
+                removeB = removeB.concat(input.charAt(i));
+            }
+        }
+        console.log("searching for matching files... " + removeB);
+        glob(removeB, function (er, files) {
+            console.log(files.length + " Files found");
+            return (files.sort());
+        })
+        reject("no file was found")
+    }
 }
 
 /**
@@ -142,7 +140,6 @@ function verifyFiles(files) {
         }
     });
     return mediaFiles;
-
 }
 
 
@@ -369,19 +366,20 @@ async function main() {
         }
 
     } else {
-        //cleanup directory
-        directory = upath.normalize(program.args[0]).replace(/\/$/, "");
+        //cleanup directory upath.normalize(program.args[0]).replace(/\/$/, "");
+        directory = program.args[0];
     }
 
     await checkffmpeg();
     //get files
-    let files = await getFiles(directory);
+    let files = getFiles(directory);
     //check if files are media files
     files = verifyFiles(files);
     //rename files
     files = program.rename ? rename(files) : files
-
+    console.log(chalk.blue("Files" + files));
     let baseDirectory = path.dirname(files[0]);
+    //let baseDirectory = path.dirname(files[0]);
     let outputDirectory = path.join(baseDirectory, audioDirectory);
 
     //create folders, delete existing files
