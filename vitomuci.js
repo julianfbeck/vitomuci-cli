@@ -14,7 +14,6 @@ const path = require('path');
 const https = require('https');
 const fs = require('fs');
 const AdmZip = require('adm-zip');
-const glob = require("glob");
 const ffprobe = require('node-ffprobe');
 const chalk = require('chalk');
 const logUpdate = require('log-update');
@@ -103,28 +102,10 @@ function getFiles(input) {
         }
         throw "no dir"
     } catch (error) {
-        console.log(input);
-        //single file
-        if (fs.existsSync(input)) {
-            return ([input]);
-        }
-        //remove brackets
-        let removeB = ""
-        for (var i = 0; i < input.length; i++) {
-            if (input.charAt(i) == "[") {
-                removeB = removeB.concat("[[]");
-            } else if (input.charAt(i) == "]") {
-                removeB = removeB.concat("[]]");
-            } else {
-                removeB = removeB.concat(input.charAt(i));
-            }
-        }
-        console.log("searching for matching files... " + removeB);
-        glob(removeB, function (er, files) {
-            console.log(files.length + " Files found");
-            return (files.sort());
-        })
-        reject("no file was found")
+        if(process.argv.length >=3)
+            console.log(`Found ${chalk.blue(process.argv.slice(2,process.argv.length))}`);    
+            return(process.argv.slice(2,process.argv.length));    
+        throw "no file found"
     }
 }
 
@@ -377,7 +358,6 @@ async function main() {
     files = verifyFiles(files);
     //rename files
     files = program.rename ? rename(files) : files
-    console.log(chalk.blue("Files" + files));
     let baseDirectory = path.dirname(files[0]);
     //let baseDirectory = path.dirname(files[0]);
     let outputDirectory = path.join(baseDirectory, audioDirectory);
