@@ -15,6 +15,7 @@ describe('Vitomuci', async function () {
     it("clearing up testfolder", function (done) {
             rimraf.sync(testFolder)
             fs.mkdirSync(testFolder);
+            done()
     });
     it('download files', async function () {
         this.timeout(50000);
