@@ -15,7 +15,6 @@ const https = require('https');
 const fs = require('fs');
 const AdmZip = require('adm-zip');
 const ffprobe = require('node-ffprobe');
-const chalk = require('chalk');
 const logUpdate = require('log-update');
 const program = require('commander');
 const upath = require("upath");
@@ -24,6 +23,13 @@ const ytlist = require('youtube-playlist');
 const isUrl = require('is-url');
 const glob = require("glob")
 const fileExists = require('file-exists');
+
+const chalk = require('chalk');
+const clear = require('clear');
+const figlet = require('figlet');
+const ora = require('ora');
+
+
 
 
 //gets set AFTER the path env has been set
@@ -80,6 +86,14 @@ module.exports.rename = rename;
  * Main
  */
 async function main() {
+    clear();
+    console.log(
+        chalk.blue(
+            figlet.textSync('VITOMUCI', {
+                horizontalLayout: 'full'
+            })
+        )
+    );
     directory = program.args[0];
     //startup
     if (isUrl(directory)) {
@@ -190,20 +204,19 @@ async function checkffmpeg() {
 function getFiles(input) {
     try {
         //cli supports regex matching
-        if (!isUrl(process.argv[2])&&fileExists.sync(program.args[0])) {
-            let files=[];
+        if (!isUrl(process.argv[2]) && fileExists.sync(program.args[0])) {
+            let files = [];
             let foundFiles = false;
             for (let i = 2; i < process.argv.length; i++) {
-                if(fileExists.sync(process.argv[i])){
+                if (fileExists.sync(process.argv[i])) {
                     files.push(process.argv[i]);
                     foundFiles = true;
                 }
             }
-            if(foundFiles){
+            if (foundFiles) {
                 return files;
             }
         }
-        console.log("skip");
         //directory
         if (fs.lstatSync(input).isDirectory()) {
             console.log("searching " + chalk.blue(input) + " for files...");
