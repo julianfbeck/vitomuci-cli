@@ -23,6 +23,8 @@ const ytdl = require('ytdl-core');
 const ytlist = require('youtube-playlist');
 const isUrl = require('is-url');
 const glob = require("glob")
+const fileExists = require('file-exists');
+
 
 //gets set AFTER the path env has been set
 let ffmetadata;
@@ -176,6 +178,7 @@ async function checkffmpeg() {
 }
 
 
+
 /**
  * Searches for files inside input,
  * or search for matching files if a regex
@@ -185,10 +188,21 @@ async function checkffmpeg() {
  */
 function getFiles(input) {
     try {
-        if (process.argv.length > 3 && !isUrl(process.argv[2])) {
-            //cli supports regex matching
-            return (process.argv.slice(2, process.argv.length));
+        //cli supports regex matching
+        if (!isUrl(process.argv[2])&&fileExists.sync(program.args[0])) {
+            let files=[];
+            let foundFiles = false;
+            for (let i = 2; i < process.argv.length; i++) {
+                if(fileExists.sync(process.argv[i])){
+                    files.push(process.argv[i]);
+                    foundFiles = true;
+                }
+            }
+            if(foundFiles){
+                return files;
+            }
         }
+        console.log("skip");
         //directory
         if (fs.lstatSync(input).isDirectory()) {
             console.log("searching " + chalk.blue(input) + " for files...");
