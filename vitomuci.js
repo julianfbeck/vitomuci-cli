@@ -155,8 +155,6 @@ async function main() {
     }
 
     let coverPath = await getCoverPicture(files[0], baseDirectory, startAt)
-    coverPath = upath.normalize(coverPath);
-    let compilationName = files[0].substr(0, files[0].lastIndexOf('.')) || files[0];
 
     //set metadata name to first file in array if not set
     if (seriesName == null) {
@@ -166,15 +164,13 @@ async function main() {
 
     //updating meta data
     if (program.metadata) {
-        fs.readdir(outputDirectory, async function (err, files) {
-            for (let file of files) {
-                await writeMusicMetadata(path.join(outputDirectory, file), seriesName, coverPath);
-            }
-            console.log(`updated metadata of ${chalk.blue(files.length)} Files`)
-        })
+        files = fs.readdirSync(outputDirectory)
+        for (let file of files) {
+            await writeMusicMetadata(path.join(outputDirectory, file), seriesName, coverPath);
+        }
+        console.log(`updated metadata of ${chalk.blue(files.length)} Files`)
     }
     await deleteFile(coverPath);
-
 }
 
 
@@ -316,19 +312,19 @@ function segmentMp3(input, output, start, duration) {
 async function splitTrack(baseDirectory, outputDirectory, name, duration) {
     let durationIndex = startAt;
     let parts = 0;
-    const spinner = ora(`splitting ${name} into ${chalk.blue(parts+1)} parts`).start();
+    const spinner = ora(`splitting ${name} into ${chalk.blue(parts + 1)} parts`).start();
     while ((durationIndex + clipLength) <= (duration - endAt)) {
-        spinnter.text = `splitting ${name} into ${chalk.blue(parts+1)} parts`;
+        spinner.text = `splitting ${name} into ${chalk.blue(parts + 1)} parts`;
         await segmentMp3(path.join(baseDirectory, "temp.mp3"), path.join(outputDirectory, getSegmentName(name, durationIndex, durationIndex + clipLength)), durationIndex, clipLength);
         durationIndex += clipLength
         parts++;
     }
     if (((duration - endAt) - durationIndex) >= 30) {
-        spinner.text = `splitting ${name} into ${chalk.blue(parts+1)} parts`;
+        spinner.text = `splitting ${name} into ${chalk.blue(parts + 1)} parts`;
         await segmentMp3(path.join(baseDirectory, "temp.mp3"), path.join(outputDirectory, getSegmentName(name, durationIndex, duration - endAt)), durationIndex, clipLength);
         parts++;
     }
-    spinner.succeed(`Splitted ${name} into ${chalk.blue(parts+1)} parts`)
+    spinner.succeed(`Splitted ${name} into ${chalk.blue(parts + 1)} parts`)
 
 }
 
@@ -390,8 +386,9 @@ function writeMusicMetadata(file, compilationName, cover) {
         let options = program.cover ? {
             attachments: [cover]
         } : {};
+
         ffmetadata.write(file, data, options, function (err) {
-            if (err) console.error("Error writing metadata", err);
+            if (err) reject(err);
             resolve();
         });
     });
