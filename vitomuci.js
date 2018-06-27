@@ -94,26 +94,27 @@ async function main() {
             })
         )
     );
+    await checkffmpeg();
     directory = program.args[0];
     //startup
     if (isUrl(directory)) {
         if (directory.indexOf("https://www.youtube.com/") >= 0) {
             //run get playlist
-            console.log(`detected youtube url....`)
+            console.log(`detected youtube Video....`)
             let videos = await getPlaylist(directory);
             if (videos.length == 0) videos = [directory];
-            console.log(`downloading ${chalk.blue(videos.length)} video(s)...`)
+            const spinner = ora(`downloading ${chalk.blue(videos.length)} video(s)...`).start();
             let i = 1;
             for (let video of videos) {
                 if (ytdl.validateURL(video)) {
                     let title = await getVideoTitle(video);
                     title = title.replace(/[/\\?%*:|"<>]/g, '-'); //make sure there are no illeagale characters
-                    logUpdate(`downloading ${chalk.blue(title)}, video ${chalk.blue(i)}/${chalk.blue(videos.length)}...`);
+                    spinner.text = `downloading ${chalk.blue(title)}, video ${chalk.blue(i)}/${chalk.blue(videos.length)}`
                     await downloadVideo(video, path.join(ytOutput, title + ".mp4"));
                     i++;
                 }
             }
-            console.log(`downloaded ${chalk.blue(videos.length)} video(s)`);
+            spinner.succeed(`downloaded ${chalk.blue(videos.length)} video(s)`);
             //set directory to ytOutput
             directory = ytOutput;
         } else {
@@ -124,7 +125,6 @@ async function main() {
         //cleanup directory upath.normalize(program.args[0]).replace(/\/$/, "");
         directory = program.args[0];
     }
-    await checkffmpeg();
     //get files
     let files = getFiles(directory);
     //check if files are media files
@@ -182,7 +182,7 @@ async function main() {
  * Sets the required ffmpeg path to all 
  * packages that require it
  */
- function checkffmpeg() {
+function checkffmpeg() {
 
     ffmpeg.setFfmpegPath(ffmpegPath);
     ffmpeg.setFfprobePath(ffprobePath);
@@ -278,7 +278,7 @@ function convertToMp3(baseDirectory, input) {
             .on('codecData', function (data) {
                 fileInfo = data;
             }).on('progress', function (progress) {
-                spinner.text =`converting ${input} to mp3: ${chalk.blue(progress.timemark)}`;
+                spinner.text = `converting ${input} to mp3: ${chalk.blue(progress.timemark)}`;
             }).on('end', function (stdout, stderr) {
                 spinner.succeed(`converting ${input} to mp3`);
                 resolve(fileInfo);
@@ -318,13 +318,13 @@ async function splitTrack(baseDirectory, outputDirectory, name, duration) {
     let parts = 0;
     const spinner = ora(`splitting ${name} into ${chalk.blue(parts+1)} parts`).start();
     while ((durationIndex + clipLength) <= (duration - endAt)) {
-        spinnter.text=`splitting ${name} into ${chalk.blue(parts+1)} parts`;
+        spinnter.text = `splitting ${name} into ${chalk.blue(parts+1)} parts`;
         await segmentMp3(path.join(baseDirectory, "temp.mp3"), path.join(outputDirectory, getSegmentName(name, durationIndex, durationIndex + clipLength)), durationIndex, clipLength);
         durationIndex += clipLength
         parts++;
     }
     if (((duration - endAt) - durationIndex) >= 30) {
-        spinner.text=`splitting ${name} into ${chalk.blue(parts+1)} parts`;
+        spinner.text = `splitting ${name} into ${chalk.blue(parts+1)} parts`;
         await segmentMp3(path.join(baseDirectory, "temp.mp3"), path.join(outputDirectory, getSegmentName(name, durationIndex, duration - endAt)), durationIndex, clipLength);
         parts++;
     }
