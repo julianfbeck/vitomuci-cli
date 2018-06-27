@@ -182,7 +182,7 @@ async function main() {
  * Sets the required ffmpeg path to all 
  * packages that require it
  */
-async function checkffmpeg() {
+ function checkffmpeg() {
 
     ffmpeg.setFfmpegPath(ffmpegPath);
     ffmpeg.setFfprobePath(ffprobePath);
@@ -273,14 +273,14 @@ function verifyFiles(files) {
 function convertToMp3(baseDirectory, input) {
     return new Promise((resolve, reject) => {
         let fileInfo;
-        logUpdate(`converting ${input} to mp3`);
+        const spinner = ora(`converting ${input} to mp3`).start();
         ffmpeg(input).format('mp3').save(baseDirectory + "/temp.mp3").on('error', console.error)
             .on('codecData', function (data) {
                 fileInfo = data;
             }).on('progress', function (progress) {
-                logUpdate(`converting ${input} to mp3: ${chalk.blue(progress.timemark)}`);
+                spinner.text =`converting ${input} to mp3: ${chalk.blue(progress.timemark)}`;
             }).on('end', function (stdout, stderr) {
-                console.log(`converting ${input} to mp3`);
+                spinner.succeed(`converting ${input} to mp3`);
                 resolve(fileInfo);
             });
     });
@@ -316,17 +316,19 @@ function segmentMp3(input, output, start, duration) {
 async function splitTrack(baseDirectory, outputDirectory, name, duration) {
     let durationIndex = startAt;
     let parts = 0;
+    const spinner = ora(`splitting ${name} into ${chalk.blue(parts+1)} parts`).start();
     while ((durationIndex + clipLength) <= (duration - endAt)) {
-        logUpdate(`splitting ${name} into ${chalk.blue(parts+1)} parts`);
+        spinnter.text=`splitting ${name} into ${chalk.blue(parts+1)} parts`;
         await segmentMp3(path.join(baseDirectory, "temp.mp3"), path.join(outputDirectory, getSegmentName(name, durationIndex, durationIndex + clipLength)), durationIndex, clipLength);
         durationIndex += clipLength
         parts++;
     }
     if (((duration - endAt) - durationIndex) >= 30) {
-        logUpdate(`splitting ${name} into ${chalk.blue(parts+1)} parts`);
+        spinner.text=`splitting ${name} into ${chalk.blue(parts+1)} parts`;
         await segmentMp3(path.join(baseDirectory, "temp.mp3"), path.join(outputDirectory, getSegmentName(name, durationIndex, duration - endAt)), durationIndex, clipLength);
         parts++;
     }
+    spinner.succeed(`Splitted ${name} into ${chalk.blue(parts+1)} parts`)
 
 }
 
