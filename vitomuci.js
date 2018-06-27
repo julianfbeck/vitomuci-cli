@@ -202,7 +202,6 @@ function getFiles(input) {
                 return files;
             }
         }
-        console.log("skip");
         //directory
         if (fs.lstatSync(input).isDirectory()) {
             console.log("searching " + chalk.blue(input) + " for files...");
