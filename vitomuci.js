@@ -74,6 +74,7 @@ if (require.main === module) {
 
 module.exports.checkffmpeg = checkffmpeg;
 module.exports.downloadVideo = downloadVideo;
+module.exports.rename = rename;
 
 /**
  * Main
