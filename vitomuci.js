@@ -5,7 +5,6 @@ const ffprobePath = require('@ffprobe-installer/ffprobe').path;
 const path = require('path');
 const https = require('https');
 const fs = require('fs');
-const AdmZip = require('adm-zip');
 const ffprobe = require('node-ffprobe');
 const logUpdate = require('log-update');
 const upath = require("upath");
@@ -14,17 +13,15 @@ const ytlist = require('youtube-playlist');
 const isUrl = require('is-url');
 const glob = require("glob")
 const fileExists = require('file-exists');
-
 const chalk = require('chalk');
 const clear = require('clear');
 const figlet = require('figlet');
 const ora = require('ora');
-
-
-
-
-//gets set AFTER the path env has been set
 let ffmetadata;
+
+
+
+
 let startAtS;
 let endAt;
 let clipLength;
@@ -44,7 +41,7 @@ vitomuci.rename = rename;
 /**
  * Main
  */
-async function main() {
+async function vitomuci(directory, option) {
     clear();
     console.log(
         chalk.blue(
@@ -189,7 +186,7 @@ function getFiles(input) {
         console.log("searching for matching files... " + input);
         //remove brackets
         let removeB = "";
-        for (var i = 0; i < input.length; i++) {
+        for (let i = 0; i < input.length; i++) {
             if (input.charAt(i) == "[") {
                 removeB = removeB.concat("[[]");
             } else if (input.charAt(i) == "]") {
@@ -333,8 +330,8 @@ function getFileLength(file) {
 function writeMusicMetadata(file, compilationName, cover) {
     return new Promise((resolve, reject) => {
 
-        var isodate = new Date();
-        var data = {
+        let isodate = new Date();
+        let data = {
             artist: compilationName,
             genre: "speech",
             disc: 1,
