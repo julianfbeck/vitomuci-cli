@@ -1,18 +1,9 @@
 #!/usr/bin/env node
 
-//gets set AFTER the path env has been set
-let ffmetadata;
-let startAtS;
-let endAt;
-let clipLength;
-let seriesName;
-let audioDirectory;
-let directory;
-let ytOutput;
-let videoFormats = [".mkv", ".mp4", ".avi", ".wmv", ".mov", ".amv", ".mpg", ".flv"];
 
 const program = require('commander');
-const vt = require("./vitomuci")
+const vt = require("./vitomuci");
+
 program
     .version('0.0.1')
     .usage('[options] <directory> <output dir(only when dowloading from yt)> ')
@@ -27,7 +18,6 @@ program
     .parse(process.argv);
 
 let options = {
-    directory: program.args[0],
     youtubeDir: program.args[0],
     audioDir: program.output,
     startAt: Number(program.start),
@@ -38,12 +28,16 @@ let options = {
     rename: program.rename
 }
 
-
-try {
-    await vt({
-        options
-    });
-} catch (error) {
-    console.log(chalk.red(error));
-
+if (program.args.length === 0) {
+    program.help();
 }
+
+
+(async () => {
+    try {
+        //await vt(program.args[0], options);
+    } catch (error) {
+        console.log(chalk.red(error));
+    }
+    
+})();
