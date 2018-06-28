@@ -1,5 +1,4 @@
 #!/usr/bin/env node
-
 const program = require('commander');
 const vt = require("./vitomuci");
 const chalk = require('chalk');

@@ -5,9 +5,7 @@ const rimraf = require('rimraf');
 const fs = require('fs');
 const testFolder = "testfolder/";
 const path = require("path");
-const {
-    exec
-} = require('child_process');
+
 
 
 describe('Vitomuci', async function () {
