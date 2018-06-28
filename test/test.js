@@ -10,8 +10,6 @@ const {
 } = require('child_process');
 
 
-
-
 describe('Vitomuci', async function () {
     it("clearing up testfolder", function (done) {
         rimraf.sync(testFolder)
