@@ -35,44 +35,12 @@ let ytOutput;
 let videoFormats = [".mkv", ".mp4", ".avi", ".wmv", ".mov", ".amv", ".mpg", ".flv"];
 
 
-program
-    .version('0.0.1')
-    .usage('[options] <directory> <output dir(only when dowloading from yt)> ')
-    .option('-s, --start [start]', 'in s: cut away start from the beginning to remove advertisment etc.', 0)
-    .option('-e, --end [end]', 'in s: cut away end from the end to remove advertisment etc.', 0)
-    .option('-d, --duration [duration]', 'the duration of the clips the file gets split to', 180)
-    .option('-n, --name [name]', 'the name of the clips and metadata', null)
-    .option('-c, --cover', 'if a cover photo should be added to the mp3 metadata', true)
-    .option('-m, --metadata', 'adds metadata to all generated clips to combine them to one compilation', true)
-    .option('-o, --output [output]', 'name of the output folder', "audio")
-    .option('-r, --rename', 'removes text inside brackets to cleanup filenames like (1080p)', false)
-    .parse(process.argv);
 
-
-if (typeof program.args[1] !== "undefined") {
-    //only gets used when downloading yt videos. location for downloaded videos
-    ytOutput = upath.normalize(program.args[1]);
-    //ytOutput = upath.normalize(program.args[1]).replace(/\/$/, "");
-
-}
-
-startAt = Number(program.start);
-endAt = Number(program.end);
-clipLength = Number(program.duration);
-audioDirectory = program.output;
-seriesName = program.name;
-
-if (require.main === module) {
-    main();
-    if (!program.args.length) {
-        program.help();
-    }
-}
-
-module.exports.checkffmpeg = checkffmpeg;
-module.exports.downloadVideo = downloadVideo;
-module.exports.rename = rename;
-
+module.exports  = vitomuci;
+vitomuci.checkffmpeg = checkffmpeg;
+vitomuci.checkffmpeg = checkffmpeg;
+vitomuci.downloadVideo = downloadVideo;
+vitomuci.rename = rename;
 /**
  * Main
  */
