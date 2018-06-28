@@ -1,8 +1,7 @@
 language: node_js
-npm install
+sudo: false
 
-npm test
-
-cache:
-  directories:
-    - "node_modules"
+install:
+  - npm install
+script:
+  - npm test
