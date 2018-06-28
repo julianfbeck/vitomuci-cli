@@ -1,12 +1,4 @@
-#!/usr/bin/env node
 
-/*
- * @Author: Julian Beck
- * @Date: 2018-06-25 09:34:35
- * @LastEditors: OBKoro1
- * @LastEditTime: 2018-06-26 08:28:50
- * @Description: Video to mp3 converter
- */
 const ffmpeg = require('fluent-ffmpeg');
 const ffmpegPath = require('@ffmpeg-installer/ffmpeg').path;
 const ffprobePath = require('@ffprobe-installer/ffprobe').path;
@@ -16,7 +8,6 @@ const fs = require('fs');
 const AdmZip = require('adm-zip');
 const ffprobe = require('node-ffprobe');
 const logUpdate = require('log-update');
-const program = require('commander');
 const upath = require("upath");
 const ytdl = require('ytdl-core');
 const ytlist = require('youtube-playlist');
