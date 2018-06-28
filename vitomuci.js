@@ -41,6 +41,7 @@ vitomuci.rename = rename;
 
 
 async function vitomuci(dir, options, process) {
+    await checkffmpeg();
     directory = dir;
     processArgv = process;
     youtubeDir = options.youtubeDir;
@@ -61,12 +62,12 @@ async function vitomuci(dir, options, process) {
             })
         )
     );
-    await checkffmpeg();
+
     //startup
     if (isUrl(directory)) {
+        if (typeof youtubeDir === "undefined") throw "please specify an output folder vitumuci: <yt url> <output folder>"
         if (directory.indexOf("https://www.youtube.com/") >= 0) {
             //run get playlist
-            console.log(`detected youtube Video....`)
             let videos = await getPlaylist(directory);
             if (videos.length == 0) videos = [directory];
             const spinner = ora(`downloading ${chalk.blue(videos.length)} video(s)...`).start();
@@ -437,8 +438,10 @@ async function downloadVideo(url, dir) {
  * @param {String} url of the youtube video 
  */
 async function getPlaylist(url) {
+    const spinner = ora(`searching for youtube video(s)...`).start();
     return new Promise((resolve, reject) => {
         ytlist(url, 'url').then(res => {
+            spinner.succeed();
             resolve(res.data.playlist);
         });
     });
