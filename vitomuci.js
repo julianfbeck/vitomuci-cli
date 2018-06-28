@@ -1,13 +1,9 @@
-
+const path = require('path');
+const fs = require('fs');
+const ffprobe = require('node-ffprobe');
 const ffmpeg = require('fluent-ffmpeg');
 const ffmpegPath = require('@ffmpeg-installer/ffmpeg').path;
 const ffprobePath = require('@ffprobe-installer/ffprobe').path;
-const path = require('path');
-const https = require('https');
-const fs = require('fs');
-const ffprobe = require('node-ffprobe');
-const logUpdate = require('log-update');
-const upath = require("upath");
 const ytdl = require('ytdl-core');
 const ytlist = require('youtube-playlist');
 const isUrl = require('is-url');
@@ -210,7 +206,8 @@ function verifyFiles(files) {
     let mediaFiles = [];
     files.forEach(file => {
         if (videoFormats.includes(path.extname(file))) {
-            mediaFiles.push(upath.normalize(file));
+            //mediaFiles.push(upath.normalize(file));
+            mediaFiles.push(file);
         }
     });
     return mediaFiles;
