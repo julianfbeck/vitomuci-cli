@@ -43,7 +43,7 @@
   ],
   "preferGlobal": true,
   "bin": {
-    "vitomuci": "./vitomuci.js"
+    "vitomuci": "./cli.js"
   },
   "repository": {
     "type": "git",
