@@ -18,26 +18,41 @@ let ffmetadata;
 
 
 
-let startAtS;
+let startAt;
 let endAt;
 let clipLength;
 let seriesName;
-let audioDirectory;
+let audioDir;
 let directory;
-let ytOutput;
+let youtubeDir;
 let videoFormats = [".mkv", ".mp4", ".avi", ".wmv", ".mov", ".amv", ".mpg", ".flv"];
+let coverCmd;
+let renameCmd;
+let metaDataCmd;
+let processArgv
 
 
 
-module.exports  = vitomuci;
+module.exports = vitomuci;
 vitomuci.checkffmpeg = checkffmpeg;
 vitomuci.checkffmpeg = checkffmpeg;
 vitomuci.downloadVideo = downloadVideo;
 vitomuci.rename = rename;
-/**
- * Main
- */
-async function vitomuci(directory, option) {
+
+
+async function vitomuci(dir, options, process) {
+    directory = dir;
+    processArgv = process;
+    youtubeDir = options.youtubeDir;
+    audioDir = options.audioDir;
+    startAt = options.startAt;
+    endAt = options.endAt;
+    clipLength = options.duration;
+    seriesName = options.name;
+    coverCmd = options.cover;
+    renameCmd = options.rename;
+    metaDataCmd = options.metadata;
+
     clear();
     console.log(
         chalk.blue(
@@ -47,7 +62,6 @@ async function vitomuci(directory, option) {
         )
     );
     await checkffmpeg();
-    directory = program.args[0];
     //startup
     if (isUrl(directory)) {
         if (directory.indexOf("https://www.youtube.com/") >= 0) {
@@ -62,30 +76,27 @@ async function vitomuci(directory, option) {
                     let title = await getVideoTitle(video);
                     title = title.replace(/[/\\?%*:|"<>]/g, '-'); //make sure there are no illeagale characters
                     spinner.text = `downloading ${chalk.blue(title)}, video ${chalk.blue(i)}/${chalk.blue(videos.length)}`
-                    await downloadVideo(video, path.join(ytOutput, title + ".mp4"));
+                    await downloadVideo(video, path.join(youtubeDir, title + ".mp4"));
                     i++;
                 }
             }
             spinner.succeed(`downloaded ${chalk.blue(videos.length)} video(s)`);
-            //set directory to ytOutput
-            directory = ytOutput;
+            //set directory to youtubeDir
+            directory = youtubeDir;
         } else {
             throw "couldnt download youtube video, please only use youtube links for downloading videos"
         }
 
-    } else {
-        //cleanup directory upath.normalize(program.args[0]).replace(/\/$/, "");
-        directory = program.args[0];
     }
     //get files
     let files = getFiles(directory);
     //check if files are media files
     files = verifyFiles(files);
     //rename files
-    files = program.rename ? rename(files) : files
+    files = renameCmd ? rename(files) : files
     let baseDirectory = path.dirname(files[0]);
     //let baseDirectory = path.dirname(files[0]);
-    let outputDirectory = path.join(baseDirectory, audioDirectory);
+    let outputDirectory = path.join(baseDirectory, audioDir);
 
     //create folders, delete existing files
     if (!fs.existsSync(outputDirectory))
@@ -115,7 +126,7 @@ async function vitomuci(directory, option) {
     }
 
     //updating meta data
-    if (program.metadata) {
+    if (metaDataCmd) {
         files = fs.readdirSync(outputDirectory)
         for (let file of files) {
             await writeMusicMetadata(path.join(outputDirectory, file), seriesName, coverPath);
@@ -152,12 +163,12 @@ function checkffmpeg() {
 function getFiles(input) {
     try {
         //cli supports regex matching
-        if (!isUrl(process.argv[2]) && fileExists.sync(program.args[0])) {
+        if (!isUrl(processArgv[2]) && fileExists.sync(directory)) {
             let files = [];
             let foundFiles = false;
-            for (let i = 2; i < process.argv.length; i++) {
-                if (fileExists.sync(process.argv[i])) {
-                    files.push(process.argv[i]);
+            for (let i = 2; i < processArgv.length; i++) {
+                if (fileExists.sync(processArgv[i])) {
+                    files.push(processArgv[i]);
                     foundFiles = true;
                 }
             }
@@ -193,8 +204,6 @@ function getFiles(input) {
         }
         //return glob search
         return glob.sync(removeB);
-
-
     }
 }
 
@@ -336,7 +345,7 @@ function writeMusicMetadata(file, compilationName, cover) {
             date: isodate
         };
 
-        let options = program.cover ? {
+        let options = coverCmd ? {
             attachments: [cover]
         } : {};
 
@@ -356,7 +365,7 @@ function writeMusicMetadata(file, compilationName, cover) {
  * @param {String} picTime 
  */
 function getCoverPicture(file, baseDirectory, picTime) {
-    if (program.cover)
+    if (coverCmd)
         console.log(`took cover picture from ${chalk.blue(file)} at ${chalk.blue(picTime)}`);
     return new Promise((resolve, reject) => {
         ffmpeg(file)

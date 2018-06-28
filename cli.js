@@ -1,8 +1,9 @@
 #!/usr/bin/env node
 
-
 const program = require('commander');
 const vt = require("./vitomuci");
+const chalk = require('chalk');
+
 
 program
     .version('0.0.1')
@@ -18,14 +19,15 @@ program
     .parse(process.argv);
 
 let options = {
-    youtubeDir: program.args[0],
+    youtubeDir: program.args[1],
     audioDir: program.output,
     startAt: Number(program.start),
     endAt: Number(program.end),
     duration: Number(program.duration),
     name: program.name,
     cover: program.cover,
-    rename: program.rename
+    rename: program.rename,
+    metadata: program.metadata
 }
 
 if (program.args.length === 0) {
@@ -35,9 +37,9 @@ if (program.args.length === 0) {
 
 (async () => {
     try {
-        //await vt(program.args[0], options);
+        await vt(program.args[0], options, process.argv);
     } catch (error) {
         console.log(chalk.red(error));
     }
-    
+
 })();
