@@ -16,7 +16,7 @@ describe('Vitomuci', async function () {
     });
     it('download files', async function () {
         this.timeout(50000);
-        await vt.downloadVideo("https://www.youtube.com/watch?v=kiB6wl55O8s", testFolder + "test.mp4");
+        await vt.downloadVideo("https://www.youtube.com/watch?v=bgU7FeiWKzc", testFolder + "test.mp4");
     });
 
     describe('Test Renaming', () => {
