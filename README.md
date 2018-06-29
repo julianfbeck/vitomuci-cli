@@ -22,7 +22,7 @@ npm install -g vitomuci
     -d, --duration [duration]  the duration of the clips the file gets split to (default: 18)
     -n, --name [name]          the name of the clips and metadata (default: null)
     -c, --cover                if a cover photo should be added to the mp3 metadata
-    -m, --metadata             adds metadata to all generated clips to combine them to one compilation
+    -m, --metadata             adds metadata to all generated clips to combine them to one album
     -r, --rename               removes text inside brackets to cleanup filenames like (1080p)
     -h, --help                 output usage information
 ```
