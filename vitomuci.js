@@ -37,18 +37,19 @@ vitomuci.checkffmpeg = checkffmpeg;
 vitomuci.checkffmpeg = checkffmpeg;
 vitomuci.downloadVideo = downloadVideo;
 vitomuci.rename = rename;
+vitomuci.getVideoTitle = getVideoTitle;
 
 
 async function vitomuci(dir, options, process) {
     await checkffmpeg();
     if (typeof dir == undefined) throw "please specify an directory"
     directory = dir;
-    youtubeDir = options.youtubeDir;
+    youtubeDir =  path.join(options.youtubeDir,"YouTube");
     processArgv = process;
+    seriesName = options.name;
     startAt = options.startAt || 0;
     endAt = options.endAt  || 0;
     clipLength = options.duration  || 180 ;
-    seriesName = options.name;
     coverCmd = options.cover  || false;
     renameCmd = options.rename  || false ;
     metaDataCmd = options.metadata  || false;
@@ -62,13 +63,14 @@ async function vitomuci(dir, options, process) {
         )
     );
 
-    //startup
+    //Download yt videos
     if (isUrl(directory)) {
         if (typeof youtubeDir === "undefined") throw "please specify an output folder vitumuci: <yt url> <output folder>"
         if (directory.indexOf("https://www.youtube.com/") >= 0) {
             //run get playlist
             let videos = await getPlaylist(directory);
             if (videos.length == 0) videos = [directory];
+            fs.mkdirSync(youtubeDir);
             const spinner = ora(`downloading ${chalk.blue(videos.length)} video(s)...`).start();
             let i = 1;
             for (let video of videos) {
