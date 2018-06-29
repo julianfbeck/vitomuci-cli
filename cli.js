@@ -13,13 +13,11 @@ program
     .option('-n, --name [name]', 'the name of the clips and metadata', null)
     .option('-c, --cover', 'if a cover photo should be added to the mp3 metadata', true)
     .option('-m, --metadata', 'adds metadata to all generated clips to combine them to one compilation', true)
-    .option('-o, --output [output]', 'name of the mp3 output folder', "audio")
     .option('-r, --rename', 'removes text inside brackets to cleanup filenames like (1080p)', false)
     .parse(process.argv);
 
 let options = {
     youtubeDir: program.args[1],
-    audioDir: program.output,
     startAt: Number(program.start),
     endAt: Number(program.end),
     duration: Number(program.duration),

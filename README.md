@@ -1,5 +1,5 @@
 
-# VITOMUCI [![npm version](https://badge.fury.io/js/vitomuci.svg)](https://badge.fury.io/js/vitomuci)
+# VITOMUCI [![npm version](https://badge.fury.io/js/vitomuci.svg)](https://badge.fury.io/js/vitomuci)[![Build Status](https://travis-ci.org/jufabeck2202/vitomuci.svg?branch=master)](https://travis-ci.org/jufabeck2202/vitomuci)
 ![](https://raw.githubusercontent.com/jufabeck2202/vitomuci/master/picture.png)
 
 **Vitomuci** is a video to mp3 converter that splits the video file into small audio files and combines them into one album with a generated cover. It is also possible to download videos and playlists directly and split them into clips.

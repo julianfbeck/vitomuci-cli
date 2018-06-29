@@ -22,7 +22,6 @@ let startAt;
 let endAt;
 let clipLength;
 let seriesName;
-let audioDir;
 let directory;
 let youtubeDir;
 let videoFormats = [".mkv", ".mp4", ".avi", ".wmv", ".mov", ".amv", ".mpg", ".flv"];
@@ -42,17 +41,17 @@ vitomuci.rename = rename;
 
 async function vitomuci(dir, options, process) {
     await checkffmpeg();
+    if (typeof dir == undefined) throw "please specify an directory"
     directory = dir;
-    processArgv = process;
     youtubeDir = options.youtubeDir;
-    audioDir = options.audioDir;
-    startAt = options.startAt;
-    endAt = options.endAt;
-    clipLength = options.duration;
+    processArgv = process;
+    startAt = options.startAt || 0;
+    endAt = options.endAt  || 0;
+    clipLength = options.duration  || 180 ;
     seriesName = options.name;
-    coverCmd = options.cover;
-    renameCmd = options.rename;
-    metaDataCmd = options.metadata;
+    coverCmd = options.cover  || false;
+    renameCmd = options.rename  || false ;
+    metaDataCmd = options.metadata  || false;
 
     clear();
     console.log(
@@ -97,7 +96,7 @@ async function vitomuci(dir, options, process) {
     files = renameCmd ? rename(files) : files
     let baseDirectory = path.dirname(files[0]);
     //let baseDirectory = path.dirname(files[0]);
-    let outputDirectory = path.join(baseDirectory, audioDir);
+    let outputDirectory = path.join(baseDirectory, "audio");
 
     //create folders, delete existing files
     if (!fs.existsSync(outputDirectory))
