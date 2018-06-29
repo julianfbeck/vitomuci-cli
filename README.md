@@ -2,8 +2,8 @@
 # VITOMUCI [![npm version](https://badge.fury.io/js/vitomuci.svg)](https://badge.fury.io/js/vitomuci) [![Build Status](https://travis-ci.org/jufabeck2202/vitomuci.svg?branch=master)](https://travis-ci.org/jufabeck2202/vitomuci)
 ![](https://raw.githubusercontent.com/jufabeck2202/vitomuci/master/picture.png)
 
-**Vitomuci** is a video to mp3 converter that splits the video file into small audio files and combines them into one album with a generated cover. It is also possible to download videos and playlists directly and split them into clips.
-It is inspired by the [sub2srs](http://subs2srs.sourceforge.net/#extract_audio) extract Audio from Media Tool from sub2srs.
+**Vitomuci** is a video to mp3 converter that splits the video file into small audio clips and combines them into one album with a generated cover. It is also possible to download videos and playlists directly and split them into clips.
+It is inspired by the [sub2srs](http://subs2srs.sourceforge.net/#extract_audio) extract Audio from Media Tool.
 ## Installation
 Install **Vitomuci** globally
 
@@ -12,7 +12,7 @@ npm install -g vitomuci
 ```
 ## Usage
 ```shell
-  Usage: vitomuci [options] <directory> <output dir(only when dowloading from yt)>
+  Usage: vitomuci [options] <directory/file/yt> <output dir(only when dowloading from yt)>
 
   Options:
 
@@ -26,22 +26,58 @@ npm install -g vitomuci
     -r, --rename               removes text inside brackets to cleanup filenames like (1080p)
     -h, --help                 output usage information
 ```
+### Make audio clips for all files inside a folder:
+```shell
+vitomuci /videos/
+```
+### Make audio clips for all files matching a regex string:
+```shell
+vitomuci  /videos/terrace house Episode??.mp4
+```
+
+### Download a YouTube video and split it into audio clips:
+```shell
+vitomuci  https://www.youtube.com/watch?v=Qrli6PxgxFM Desktop/
+```
+### Download a YouTube playlist and split it into audio clips:
+```shell
+vitomuci  https://www.youtube.com/playlist?list=PLuf9JIUOHQ-NC98LUExv1WWl4mwPXzwnI Desktop/
+```
+**When downloading YouTube videos an output path is required:** 
+```shell
+vitomuci <ytlink> <output folder>
+
+```
+vitomuci will create a YouTube folder and keep the downloaded .mp4 files 
+
 ## Options
-**-s, --start [start]** Seconds you want to skip when creating clips for a file. -s 60 will skip the first 60 seconds of a clip. Useful when you want to remove intros, or openings.
-### Examples
+**-s, --start [start]:** Seconds you want to skip from the beginning of a a file. -s 60 will skip the first 60 seconds of a file before creating mp3 clips. Useful when you want to remove intros or openings.
+
+**-s, --start [start]:** Seconds you want to skip from the end of a a file. -e 60 will skip the last 60 seconds of a file. Useful when you want to remove outros or endings.
+
+**-d, --duration [duration]:** the duration of the audio clips. Default: 3 min.
+
+** -m, --metadata:** Adds album, artist and disc metadata to cobine all clips into one album. Usefull if you want the clips to show up as one album and not one album per clip. Default: false
+
+**-n, --name [name]:** name of to album for the clips. Default: Name of first file. **Requires -metadata to be set**
+
+**-c, --cover:** Takes a picture and use it as cover for the generated album. Default: false. **Requires -metadata to be set**
+
+**-r, --rename:** Removes text inside brackets to cleanup filenames. Removes brackets like (1080p60) or [Japanese]. 
+
+
+## Examples
 ```shell
 vitomuci -s 30 -e 30 -d 60 -c -m /videos/testvideoPart*.mp4
 ```
-This command will convert all videos files matching the regex "testvideoPart*.mp4" to mp3 and split them into 1 minute long parts, skipping the first 30 and last 30 seconds. After that a metadata and a cover picture will be added to combine them into one album. The parts will be saved under *videos/audio*
+Convert all videos files matching the regex "testvideoPart*.mp4" to mp3 and split them into 1 minute long parts, skipping the first 30 and last 30 seconds.Add metadata and a cover picture, combine them into one album. Audio clips will be saved under *videos/audio*
 
 ```shell
-vitomuci -d 120 -o jsclips  https://www.youtube.com/playlist?list=PLWKjhJtqVAbnZtkAI3BqcYxKnfWn_C704 desktop/
+vitomuci -d 120 https://www.youtube.com/playlist?list=PLWKjhJtqVAbnZtkAI3BqcYxKnfWn_C704 desktop/
 ```
-This will download all videos inside the YouTube playlist, split them into 2 minute parts and save them on the desktop inside the *desktop/jsclips* folder
+Download all videos from the YouTube playlist, split them into 2 minute parts.
 
 ```shell
 vitumici -d 20 -r /videos/
 ```
-This will rename all files inside the videos folder to remove strings like (1080p60) or [Japanese], convert them to mp3, split them into 20 second parts and save them under *videos/audio*  (standard output folder).
-**Make sure /videos/ only contains video files.**
-
+Renames all video files inside the videos folder, remove strings like (1080p60) or [Japanese] and splits the renamed files into 20s clips.
