@@ -1,4 +1,4 @@
-const path = require('path');
+const path = require('upath');
 const fs = require('fs');
 const ffprobe = require('node-ffprobe');
 const ffmpeg = require('fluent-ffmpeg');
@@ -28,7 +28,7 @@ let videoFormats = [".mkv", ".mp4", ".avi", ".wmv", ".mov", ".amv", ".mpg", ".fl
 let coverCmd;
 let renameCmd;
 let metaDataCmd;
-let processArgv
+let processArgv;
 
 
 
@@ -40,12 +40,15 @@ vitomuci.rename = rename;
 vitomuci.getVideoTitle = getVideoTitle;
 
 
-async function vitomuci(dir, options, process) {
+async function vitomuci(dir, op, process) {
+    let options = Object.assign({
+        name: '',
+    }, op);
+
     await checkffmpeg();
     if (typeof dir == undefined) throw "please specify an directory"
     directory = dir;
-    youtubeDir =  path.join(options.youtubeDir,"YouTube");
-    processArgv = process;
+    processArgv = process || [0,0,dir]; //gets set when calling as a node module
     seriesName = options.name;
     startAt = options.startAt || 0;
     endAt = options.endAt  || 0;
@@ -65,7 +68,8 @@ async function vitomuci(dir, options, process) {
 
     //Download yt videos
     if (isUrl(directory)) {
-        if (typeof youtubeDir === "undefined") throw "please specify an output folder vitumuci: <yt url> <output folder>"
+        if (typeof options.output === "undefined") throw "please specify an output folder vitumuci: <yt url> <output folder>"
+        youtubeDir =  path.join(options.output,"YouTube");
         if (directory.indexOf("https://www.youtube.com/") >= 0) {
             //run get playlist
             let videos = await getPlaylist(directory);
@@ -122,7 +126,7 @@ async function vitomuci(dir, options, process) {
     let coverPath = await getCoverPicture(files[0], baseDirectory, startAt)
 
     //set metadata name to first file in array if not set
-    if (seriesName == null) {
+    if (seriesName === "") {
         let filename = path.basename(files[0])
         seriesName = filename.substr(0, filename.lastIndexOf('.')) || filename;
     }
@@ -179,7 +183,7 @@ function getFiles(input) {
             }
         }
         //directory
-        if (fs.lstatSync(input).isDirectory()) {
+        if (fs.lstatSync("testfolder/YouTube/").isDirectory()) {
             console.log("searching " + chalk.blue(input) + " for files...");
             let files = []
             fs.readdirSync(input).forEach(file => {

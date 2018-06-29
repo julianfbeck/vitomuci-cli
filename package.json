@@ -25,6 +25,7 @@
     "is-url": "^1.2.4",
     "node-ffprobe": "github:ListenerApproved/node-ffprobe",
     "ora": "^2.1.0",
+    "upath": "^1.1.0",
     "youtube-playlist": "^1.0.0",
     "ytdl-core": "^0.20.4"
   },

@@ -10,14 +10,14 @@ program
     .option('-s, --start [start]', 'in s: cut away start from the beginning to remove advertisment etc.', 0)
     .option('-e, --end [end]', 'in s: cut away end from the end to remove advertisment etc.', 0)
     .option('-d, --duration [duration]', 'the duration of the clips the file gets split to', 180)
-    .option('-n, --name [name]', 'the name of the clips and metadata', null)
+    .option('-n, --name [name]', 'the name of the clips and metadata', "")
     .option('-c, --cover', 'if a cover photo should be added to the mp3 metadata', true)
     .option('-m, --metadata', 'adds metadata to all generated clips to combine them to one compilation', true)
     .option('-r, --rename', 'removes text inside brackets to cleanup filenames like (1080p)', false)
     .parse(process.argv);
 
 let options = {
-    youtubeDir: program.args[1],
+    output: program.args[1],
     startAt: Number(program.start),
     endAt: Number(program.end),
     duration: Number(program.duration),
