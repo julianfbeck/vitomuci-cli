@@ -288,7 +288,7 @@ async function splitTrack(baseDirectory, outputDirectory, name, duration) {
         await segmentMp3(path.join(baseDirectory, "temp.mp3"), path.join(outputDirectory, getSegmentName(name, durationIndex, duration - endAt)), durationIndex, clipLength);
         parts++;
     }
-    spinner.succeed(`Splitted ${name} into ${chalk.blue(parts + 1)} parts`)
+    spinner.succeed(`Splitted ${name} into ${chalk.blue(parts)} parts`)
 
 }
 
