@@ -15,47 +15,27 @@ const figlet = require('figlet');
 const ora = require('ora');
 let ffmetadata;
 
-
-
-
-let startAt;
-let endAt;
-let clipLength;
-let seriesName;
 let directory;
-let youtubeDir;
 let videoFormats = [".mkv", ".mp4", ".avi", ".wmv", ".mov", ".amv", ".mpg", ".flv"];
-let coverCmd;
-let renameCmd;
-let metaDataCmd;
 let processArgv;
-
-
-
-module.exports = vitomuci;
-vitomuci.checkffmpeg = checkffmpeg;
-vitomuci.checkffmpeg = checkffmpeg;
-vitomuci.downloadVideo = downloadVideo;
-vitomuci.rename = rename;
-vitomuci.getVideoTitle = getVideoTitle;
+let options;
 
 
 async function vitomuci(dir, op, process) {
-    let options = Object.assign({
-        name: '',
-    }, op);
-
-    await checkffmpeg();
     if (typeof dir == undefined) throw "please specify an directory"
     directory = dir;
-    processArgv = process || [0,0,dir]; //gets set when calling as a node module
-    seriesName = options.name;
-    startAt = options.startAt || 0;
-    endAt = options.endAt  || 0;
-    clipLength = options.duration  || 180 ;
-    coverCmd = options.cover  || false;
-    renameCmd = options.rename  || false ;
-    metaDataCmd = options.metadata  || false;
+    processArgv = process || [0, 0, dir]; //gets set when calling as a node module
+
+    //set default value when calling as an opject
+    options = Object.assign({
+        name: '',
+        startAt: 0,
+        endAt: 0,
+        duration: 180,
+        cover: false,
+        rename: false,
+        metadata: false,
+    }, op);
 
     clear();
     console.log(
@@ -66,10 +46,13 @@ async function vitomuci(dir, op, process) {
         )
     );
 
+    //sets path variables for ffmpeg
+    await checkffmpeg();
+
     //Download yt videos
     if (isUrl(directory)) {
         if (typeof options.output === "undefined") throw "please specify an output folder vitumuci: <yt url> <output folder>"
-        youtubeDir =  path.join(options.output,"YouTube");
+        let youtubeDir = path.join(options.output, "YouTube");
         if (directory.indexOf("https://www.youtube.com/") >= 0) {
             //run get playlist
             let videos = await getPlaylist(directory);
@@ -99,7 +82,7 @@ async function vitomuci(dir, op, process) {
     //check if files are media files
     files = verifyFiles(files);
     //rename files
-    files = renameCmd ? rename(files) : files
+    files = options.rename ? rename(files) : files
     let baseDirectory = path.dirname(files[0]);
     //let baseDirectory = path.dirname(files[0]);
     let outputDirectory = path.join(baseDirectory, "audio");
@@ -123,19 +106,19 @@ async function vitomuci(dir, op, process) {
 
     }
 
-    let coverPath = await getCoverPicture(files[0], baseDirectory, startAt)
+    let coverPath = await getCoverPicture(files[0], baseDirectory, options.startAt)
 
     //set metadata name to first file in array if not set
-    if (seriesName === "") {
+    if (options.name === "") {
         let filename = path.basename(files[0])
-        seriesName = filename.substr(0, filename.lastIndexOf('.')) || filename;
+        options.name = filename.substr(0, filename.lastIndexOf('.')) || filename;
     }
 
     //updating meta data
-    if (metaDataCmd) {
+    if (options.metadata) {
         files = fs.readdirSync(outputDirectory)
         for (let file of files) {
-            await writeMusicMetadata(path.join(outputDirectory, file), seriesName, coverPath);
+            await writeMusicMetadata(path.join(outputDirectory, file), options.name, coverPath);
         }
         console.log(`updated metadata of ${chalk.blue(files.length)} Files`)
     }
@@ -183,7 +166,7 @@ function getFiles(input) {
             }
         }
         //directory
-        if (fs.lstatSync("testfolder/YouTube/").isDirectory()) {
+        if (fs.lstatSync(input).isDirectory()) {
             console.log("searching " + chalk.blue(input) + " for files...");
             let files = []
             fs.readdirSync(input).forEach(file => {
@@ -278,18 +261,18 @@ function segmentMp3(input, output, start, duration) {
  * @param {Number} duration 
  */
 async function splitTrack(baseDirectory, outputDirectory, name, duration) {
-    let durationIndex = startAt;
+    let durationIndex = options.startAt;
     let parts = 0;
     const spinner = ora(`splitting ${name} into ${chalk.blue(parts + 1)} parts`).start();
-    while ((durationIndex + clipLength) <= (duration - endAt)) {
+    while ((durationIndex + options.duration) <= (duration - options.endAt)) {
         spinner.text = `splitting ${name} into ${chalk.blue(parts + 1)} parts`;
-        await segmentMp3(path.join(baseDirectory, "temp.mp3"), path.join(outputDirectory, getSegmentName(name, durationIndex, durationIndex + clipLength)), durationIndex, clipLength);
-        durationIndex += clipLength
+        await segmentMp3(path.join(baseDirectory, "temp.mp3"), path.join(outputDirectory, getSegmentName(name, durationIndex, durationIndex + options.duration)), durationIndex, options.duration);
+        durationIndex += options.duration
         parts++;
     }
-    if (((duration - endAt) - durationIndex) >= 30) {
+    if (((duration - options.endAt) - durationIndex) >= 30) {
         spinner.text = `splitting ${name} into ${chalk.blue(parts + 1)} parts`;
-        await segmentMp3(path.join(baseDirectory, "temp.mp3"), path.join(outputDirectory, getSegmentName(name, durationIndex, duration - endAt)), durationIndex, clipLength);
+        await segmentMp3(path.join(baseDirectory, "temp.mp3"), path.join(outputDirectory, getSegmentName(name, durationIndex, duration - options.endAt)), durationIndex, options.duration);
         parts++;
     }
     spinner.succeed(`Splitted ${name} into ${chalk.blue(parts)} parts`)
@@ -351,11 +334,11 @@ function writeMusicMetadata(file, compilationName, cover) {
             date: isodate
         };
 
-        let options = coverCmd ? {
+        let attachments = options.cover ? {
             attachments: [cover]
         } : {};
 
-        ffmetadata.write(file, data, options, function (err) {
+        ffmetadata.write(file, data, attachments, function (err) {
             if (err) reject(err);
             resolve();
         });
@@ -371,7 +354,7 @@ function writeMusicMetadata(file, compilationName, cover) {
  * @param {String} picTime 
  */
 function getCoverPicture(file, baseDirectory, picTime) {
-    if (coverCmd)
+    if (options.cover)
         console.log(`took cover picture from ${chalk.blue(file)} at ${chalk.blue(picTime)}`);
     return new Promise((resolve, reject) => {
         ffmpeg(file)
@@ -465,3 +448,11 @@ async function getVideoTitle(url) {
         })
     });
 }
+
+module.exports = vitomuci;
+//export mehtods for testing
+vitomuci.checkffmpeg = checkffmpeg;
+vitomuci.checkffmpeg = checkffmpeg;
+vitomuci.downloadVideo = downloadVideo;
+vitomuci.rename = rename;
+vitomuci.getVideoTitle = getVideoTitle;
