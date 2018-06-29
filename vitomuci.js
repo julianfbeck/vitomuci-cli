@@ -56,7 +56,7 @@ async function vitomuci(dir, op, process) {
 
     //Download yt videos
     if (isUrl(directory)) {
-        if (typeof options.output === "undefined") throw "please specify an output folder vitumuci: <yt url> <output folder>"
+        if (typeof options.output === "undefined") throw "please specify an output folder vitomuci: <yt url> <output folder>"
         let youtubeDir = path.join(options.output, "YouTube");
         if (directory.indexOf("https://www.youtube.com/") >= 0) {
             //run get playlist
@@ -78,7 +78,7 @@ async function vitomuci(dir, op, process) {
             //set directory to youtubeDir
             directory = youtubeDir;
         } else {
-            throw "couldn´t download YouTube video, please only use YouTube links for downloading videos"
+            throw "couldn´t download YouTube video, please only use YouTube links for downloading video(s)"
         }
 
     }
@@ -88,7 +88,6 @@ async function vitomuci(dir, op, process) {
     files = verifyFiles(files);
     //rename files
     files = options.rename ? rename(files) : files
-    if(files.length<=)
     let baseDirectory = path.dirname(files[0]);
     let outputDirectory = path.join(baseDirectory, "audio");
 
@@ -98,7 +97,7 @@ async function vitomuci(dir, op, process) {
     if (fs.existsSync(path.join(baseDirectory, "temp.mp3")))
         await deleteFile(path.join(baseDirectory, "temp.mp3"));
 
-    console.log(`found ${chalk.blue(files.length)} files, start converting...`)
+    console.log(`found ${chalk.blue(files.length)} file(s), start converting...`)
 
     //main loop
     for (let item of files) {
@@ -125,7 +124,7 @@ async function vitomuci(dir, op, process) {
         for (let file of files) {
             await writeMusicMetadata(path.join(outputDirectory, file), options.name, coverPath);
         }
-        console.log(`updated metadata of ${chalk.blue(files.length)} Files`)
+        console.log(`updated metadata of ${chalk.blue(files.length)} file(s)`)
     }
     await deleteFile(coverPath);
 }
@@ -184,7 +183,7 @@ function getFiles(input) {
         throw "no dir"
     } catch (error) {
         //falls back here if cli doesnt supports regex matching
-        console.log("searching for matching files... " + input);
+        console.log("searching for matching file(s)... " + input);
         //remove brackets
         let removeB = "";
         for (let i = 0; i < input.length; i++) {
