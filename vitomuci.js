@@ -15,18 +15,23 @@ const figlet = require('figlet');
 const ora = require('ora');
 let ffmetadata;
 
-let directory;
 let videoFormats = [".mkv", ".mp4", ".avi", ".wmv", ".mov", ".amv", ".mpg", ".flv"];
+let directory;
 let processArgv;
 let options;
 
-
+/**
+ * 
+ * @param {*} dir 
+ * @param {*} op 
+ * @param {*} process 
+ */
 async function vitomuci(dir, op, process) {
     if (typeof dir == undefined) throw "please specify an directory"
     directory = dir;
     processArgv = process || [0, 0, dir]; //gets set when calling as a node module
 
-    //set default value when calling as an opject
+    //set default value when calling as a module
     options = Object.assign({
         name: '',
         startAt: 0,
@@ -73,7 +78,7 @@ async function vitomuci(dir, op, process) {
             //set directory to youtubeDir
             directory = youtubeDir;
         } else {
-            throw "couldnt download youtube video, please only use youtube links for downloading videos"
+            throw "couldn´t download YouTube video, please only use YouTube links for downloading videos"
         }
 
     }
@@ -83,8 +88,8 @@ async function vitomuci(dir, op, process) {
     files = verifyFiles(files);
     //rename files
     files = options.rename ? rename(files) : files
+    if(files.length<=)
     let baseDirectory = path.dirname(files[0]);
-    //let baseDirectory = path.dirname(files[0]);
     let outputDirectory = path.join(baseDirectory, "audio");
 
     //create folders, delete existing files

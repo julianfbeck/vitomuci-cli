@@ -1,5 +1,5 @@
 
-# VITOMUCI [![npm version](https://badge.fury.io/js/vitomuci.svg)](https://badge.fury.io/js/vitomuci)[![Build Status](https://travis-ci.org/jufabeck2202/vitomuci.svg?branch=master)](https://travis-ci.org/jufabeck2202/vitomuci)
+# VITOMUCI [![npm version](https://badge.fury.io/js/vitomuci.svg)](https://badge.fury.io/js/vitomuci) [![Build Status](https://travis-ci.org/jufabeck2202/vitomuci.svg?branch=master)](https://travis-ci.org/jufabeck2202/vitomuci)
 ![](https://raw.githubusercontent.com/jufabeck2202/vitomuci/master/picture.png)
 
 **Vitomuci** is a video to mp3 converter that splits the video file into small audio files and combines them into one album with a generated cover. It is also possible to download videos and playlists directly and split them into clips.
@@ -23,10 +23,11 @@ npm install -g vitomuci
     -n, --name [name]          the name of the clips and metadata (default: null)
     -c, --cover                if a cover photo should be added to the mp3 metadata
     -m, --metadata             adds metadata to all generated clips to combine them to one compilation
-    -o, --output [output]      name of the output folder (default: audio)
     -r, --rename               removes text inside brackets to cleanup filenames like (1080p)
     -h, --help                 output usage information
 ```
+## Options
+**-s, --start [start]** Seconds you want to skip when creating clips for a file. -s 60 will skip the first 60 seconds of a clip. Useful when you want to remove intros, or openings.
 ### Examples
 ```shell
 vitomuci -s 30 -e 30 -d 60 -c -m /videos/testvideoPart*.mp4
