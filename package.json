@@ -30,6 +30,11 @@
     "youtube-playlist": "^1.0.0",
     "ytdl-core": "^0.20.4"
   },
+  "files": [
+    "README.md",
+    "cli.js",
+    "vitomuci.js"
+  ],  
   "keywords": [
     "language",
     "mp4tomp3",
