@@ -1,6 +1,9 @@
 
 # VITOMUCI [![npm version](https://badge.fury.io/js/vitomuci.svg)](https://badge.fury.io/js/vitomuci) [![Build Status](https://travis-ci.org/jufabeck2202/vitomuci.svg?branch=master)](https://travis-ci.org/jufabeck2202/vitomuci)
-![](https://raw.githubusercontent.com/jufabeck2202/vitomuci/master/screenshot.svg)
+<p >
+  <img width="700" src="https://rawgit.com/jufabeck2202/vitomuci/master/screenshot.svg">
+</p>
+
 
 **Vitomuci** is a video to mp3 converter that splits the video file into small audio clips and combines them into one album with a generated cover. It is also possible to download videos and playlists directly and split them into clips.
 It is inspired by the [sub2srs](http://subs2srs.sourceforge.net/#extract_audio) extract Audio from Media Tool.
@@ -55,13 +58,13 @@ vitomuci will create a YouTube folder and keep the downloaded .mp4 files
 
 **-s, --start [start]:** Seconds you want to skip from the end of a a file. -e 60 will skip the last 60 seconds of a file. Useful when you want to remove outros or endings.
 
-**-d, --duration [duration]:** the duration of the audio clips. Default: 3 min.
+**-d, --duration [duration]:** the duration of the audio clips. *Default: 3 min*
 
-** -m, --metadata:** Adds album, artist and disc metadata to cobine all clips into one album. Usefull if you want the clips to show up as one album and not one album per clip. Default: false
+**-m, --metadata:** Adds album, artist and disc metadata to cobine all clips into one album. Usefull if you want the clips to show up as one album and not one album per clip. *Default: false*
 
 **-n, --name [name]:** name of to album for the clips. Default: Name of first file. **Requires -metadata to be set**
 
-**-c, --cover:** Takes a picture and use it as cover for the generated album. Default: false. **Requires -metadata to be set**
+**-c, --cover:** Takes a picture and use it as cover for the generated album. *Default: false.* **Requires -metadata to be set**
 
 **-r, --rename:** Removes text inside brackets to cleanup filenames. Removes brackets like (1080p60) or [Japanese]. 
 
