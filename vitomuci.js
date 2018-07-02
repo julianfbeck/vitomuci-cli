@@ -21,10 +21,10 @@ let processArgv;
 let options;
 
 /**
- * 
- * @param {*} dir 
- * @param {*} op 
- * @param {*} process 
+ * Vitomuci
+ * @param {String} dir Directory, file, file with regex, or youtube url
+ * @param {*} op  options
+ * @param {*} process pass process variable, only needed for cli.js
  */
 async function vitomuci(dir, op, process) {
     if (typeof dir == undefined) throw "please specify an directory"
@@ -94,8 +94,7 @@ async function vitomuci(dir, op, process) {
     //create folders, delete existing files
     if (!fs.existsSync(outputDirectory))
         fs.mkdirSync(outputDirectory);
-    if (fs.existsSync(path.join(baseDirectory, "temp.mp3")))
-        await deleteFile(path.join(baseDirectory, "temp.mp3"));
+   
 
     console.log(`found ${chalk.blue(files.length)} file(s), start converting...`)
 
