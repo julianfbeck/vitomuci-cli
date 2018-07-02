@@ -27,10 +27,11 @@ let options;
  * @param {*} process pass process variable, only needed for cli.js
  */
 async function vitomuci(dir, op, process) {
+    
     if (typeof dir == undefined) throw "please specify an directory"
     directory = dir;
-    processArgv = process || [0, 0, dir]; //gets set when calling as a node module
-
+    processArgv = process || [0, 0, dir]; //gets set when calling as a module
+    
     //set default value when calling as a module
     options = Object.assign({
         name: '',
@@ -42,6 +43,11 @@ async function vitomuci(dir, op, process) {
         metadata: false,
     }, op);
 
+    //parse time stamps to seconds
+    options.startAt = stringToSeconds(options.startAt);
+    options.endAt = stringToSeconds(options.endAt);
+    options.duration = stringToSeconds(options.duration);
+
     clear();
     console.log(
         chalk.blue(
@@ -50,7 +56,6 @@ async function vitomuci(dir, op, process) {
             })
         )
     );
-
     //sets path variables for ffmpeg
     await checkffmpeg();
 
@@ -87,14 +92,15 @@ async function vitomuci(dir, op, process) {
     //check if files are media files
     files = verifyFiles(files);
     //rename files
-    files = options.rename ? rename(files) : files
+    if (typeof files === "undefined" || files.length == 0) throw "no files where found inside " + directory;
+    files = options.rename ? rename(files) : files;
     let baseDirectory = path.dirname(files[0]);
     let outputDirectory = path.join(baseDirectory, "audio");
 
     //create folders, delete existing files
     if (!fs.existsSync(outputDirectory))
         fs.mkdirSync(outputDirectory);
-   
+
 
     console.log(`found ${chalk.blue(files.length)} file(s), start converting...`)
 
@@ -303,6 +309,26 @@ function secondsToTimeString(seconds) {
 
 }
 
+/**
+ * Returns seconds from strings like 00:00 or 10000
+ * @param {String} timeString 
+ */
+function stringToSeconds(timeString) {
+    let seconds = 0;
+    if (!isNaN(timeString))
+        seconds = timeString;
+    else if (typeof timeString === 'string' || timeString instanceof String) {
+        if (timeString.indexOf(":") > -1) {
+            let ms = timeString.split(':');
+            seconds = (+ms[0]) * 60 + (+ms[1]);
+        }
+    }
+    else
+        throw timeString + " is not a number, please only use formats like 123 or 1:30"
+
+    return Number(seconds);
+}
+
 
 /**
  * Returns the duration of a given 
@@ -459,3 +485,4 @@ vitomuci.checkffmpeg = checkffmpeg;
 vitomuci.downloadVideo = downloadVideo;
 vitomuci.rename = rename;
 vitomuci.getVideoTitle = getVideoTitle;
+vitomuci.stringToSeconds = stringToSeconds;

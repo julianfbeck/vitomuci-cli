@@ -38,3 +38,14 @@ describe('Test Renaming', () => {
         expect(result).to.have.all.members(["Akane-iro ni Somaru Saka.mp4", "Boku no Hero Academia 3 - 12 RAW.mp4", "Boruto - 62 RAW.mp4"]);
     });
 });
+
+describe('test helper functions', () => {
+    it('test strings to seconds', () => {
+        expect(vt.stringToSeconds("1000")).to.be.equal(1000);
+        expect(vt.stringToSeconds("1:30")).to.be.equal(90);
+        expect(vt.stringToSeconds("01:30")).to.be.equal(90);
+        expect(vt.stringToSeconds(1000)).to.be.equal(1000);
+        expect(vt.stringToSeconds("1:3")).to.be.equal(63);
+
+    });
+});

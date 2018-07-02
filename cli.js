@@ -18,9 +18,9 @@ program
 
 let options = {
     output: program.args[1],
-    startAt: Number(program.start),
-    endAt: Number(program.end),
-    duration: Number(program.duration),
+    startAt: program.start,
+    endAt: program.end,
+    duration: program.duration,
     name: program.name,
     cover: program.cover,
     rename: program.rename,
