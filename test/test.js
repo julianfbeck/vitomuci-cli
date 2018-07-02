@@ -15,7 +15,7 @@ describe('Vitomuci', async function () {
         done()
     });
     it('download files', async function () {
-        this.timeout(50000);
+        this.timeout(100000);
         await vt("https://www.youtube.com/watch?v=bgU7FeiWKzc", {"output":testFolder});
     });
 
