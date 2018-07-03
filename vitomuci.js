@@ -444,7 +444,7 @@ async function downloadVideo(url, dir) {
     return new Promise((resolve, reject) => {
         ytdl(url)
             .pipe(fs.createWriteStream(dir)).on('finish', () => {
-                resolve();
+                resolve(dir);
             });
     });
 }
@@ -487,3 +487,4 @@ vitomuci.rename = rename;
 vitomuci.getVideoTitle = getVideoTitle;
 vitomuci.stringToSeconds = stringToSeconds;
 vitomuci.secondsToTimeString = secondsToTimeString;
+vitomuci.downloadVideo = downloadVideo;

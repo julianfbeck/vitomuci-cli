@@ -16,7 +16,7 @@ describe('Vitomuci', async function () {
     });
     it('download files', async function () {
         this.timeout(100000);
-        await vt("https://www.youtube.com/watch?v=bgU7FeiWKzc", {"output":testFolder});
+        //await vt("https://www.youtube.com/watch?v=bgU7FeiWKzc", {"output":testFolder});
     });
 
 });
@@ -39,7 +39,15 @@ describe('Test Renaming', () => {
     });
 });
 
-describe('test helper functions', () => {
+describe('youtube', async function() {
+    this.timeout(100000);
+    it('downloadVideo()', async function() {
+       let result = await vt.downloadVideo("https://www.youtube.com/watch?v=Fa2bG3cMZvM",path.join(testFolder,"test.mp4"));
+       expect(fs.existsSync(result)).to.be.true
+    });
+});
+
+describe('converterFunctions', () => {
     it('stringToSeconds()', () => {
         expect(vt.stringToSeconds("1000")).to.be.equal(1000);
         expect(vt.stringToSeconds("1:30")).to.be.equal(90);
