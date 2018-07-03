@@ -39,16 +39,20 @@ describe('Test Renaming', () => {
     });
 });
 
-describe('youtube', async function() {
+describe('youtube', async function () {
     this.timeout(100000);
-    it('downloadVideo()', async function() {
-       let result = await vt.downloadVideo("https://www.youtube.com/watch?v=Fa2bG3cMZvM",path.join(testFolder,"test.mp4"));
-       expect(fs.existsSync(result)).to.be.true
+    it('downloadVideo()', async function () {
+        let result = await vt.downloadVideo("https://www.youtube.com/watch?v=Fa2bG3cMZvM", path.join(testFolder, "test.mp4"));
+        expect(fs.existsSync(result)).to.be.true
     });
-    it("getVideoTitle()", async function() {
-    let result = await vt.getVideoTitle("https://www.youtube.com/watch?v=Fa2bG3cMZvM");
-      expect(result).to.be.equal("New rocket test");
-     });
+    it("getVideoTitle()", async function () {
+        let result = await vt.getVideoTitle("https://www.youtube.com/watch?v=Fa2bG3cMZvM");
+        expect(result).to.be.equal("New rocket test");
+    });
+    it("getPlaylistUrls()", async function () {
+       let result = await vt.getPlaylist("https://www.youtube.com/playlist?list=PLuf9JIUOHQ-NC98LUExv1WWl4mwPXzwnI");
+       expect(result).to.be.an("array");
+    });
 });
 
 describe('converterFunctions', () => {
@@ -63,7 +67,7 @@ describe('converterFunctions', () => {
     it('secondsToTimeString()', () => {
         expect(vt.secondsToTimeString(60)).to.be.equal("01.00");
         expect(vt.secondsToTimeString(90)).to.be.equal("01.30");
-        expect(vt.secondsToTimeString(0)).to.be.equal("00.00");  
+        expect(vt.secondsToTimeString(0)).to.be.equal("00.00");
 
     });
 });

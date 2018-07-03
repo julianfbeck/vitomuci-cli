@@ -489,3 +489,4 @@ vitomuci.stringToSeconds = stringToSeconds;
 vitomuci.secondsToTimeString = secondsToTimeString;
 vitomuci.downloadVideo = downloadVideo;
 vitomuci.getVideoTitle = getVideoTitle;
+vitomuci.getPlaylist = getPlaylist;
