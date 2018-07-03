@@ -40,12 +40,19 @@ describe('Test Renaming', () => {
 });
 
 describe('test helper functions', () => {
-    it('test strings to seconds', () => {
+    it('stringToSeconds()', () => {
         expect(vt.stringToSeconds("1000")).to.be.equal(1000);
         expect(vt.stringToSeconds("1:30")).to.be.equal(90);
         expect(vt.stringToSeconds("01:30")).to.be.equal(90);
         expect(vt.stringToSeconds(1000)).to.be.equal(1000);
         expect(vt.stringToSeconds("1:3")).to.be.equal(63);
+
+    });
+    it('secondsToTimeString()', () => {
+        console.log(vt.secondsToTimeString(1000));
+        expect(vt.secondsToTimeString(60)).to.be.equal("01.00");
+        expect(vt.secondsToTimeString(90)).to.be.equal("01.30");
+        expect(vt.secondsToTimeString(0)).to.be.equal("00.00");  
 
     });
 });

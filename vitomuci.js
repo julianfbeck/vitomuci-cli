@@ -486,3 +486,4 @@ vitomuci.downloadVideo = downloadVideo;
 vitomuci.rename = rename;
 vitomuci.getVideoTitle = getVideoTitle;
 vitomuci.stringToSeconds = stringToSeconds;
+vitomuci.secondsToTimeString = secondsToTimeString;
