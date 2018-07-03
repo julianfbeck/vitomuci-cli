@@ -16,6 +16,7 @@ program
     .option('-r, --rename', 'removes text inside brackets to cleanup filenames like (1080p)', false)
     .parse(process.argv);
 
+//pack program options into one object
 let options = {
     output: program.args[1],
     startAt: program.start,
@@ -32,6 +33,9 @@ if (program.args.length === 0) {
 }
 
 
+/**
+ * call vitomuci, pass over args, opions and argv
+ */
 (async () => {
     try {
         await vt(program.args[0], options, process.argv);

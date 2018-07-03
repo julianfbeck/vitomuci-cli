@@ -22,7 +22,7 @@ let options;
 
 /**
  * Vitomuci
- * @param {String} dir Directory, file, file with regex, or youtube url
+ * @param {String} dir directory, file, file with regex, or youtube url
  * @param {*} op  options
  * @param {*} process pass process variable, only needed for cli.js
  */

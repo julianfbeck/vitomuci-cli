@@ -6,25 +6,24 @@
 
 **Vitomuci** is a video to mp3 converter that splits the video file into small audio clips and combines them into one album with a generated cover. It is also possible to download videos and playlists directly and split them into clips.
 It is inspired by the [sub2srs](http://subs2srs.sourceforge.net/#extract_audio) extract Audio from Media Tool.
-## Installation
-Install **Vitomuci** globally
-
-```shell
-npm install -g vitomuci
-```
 ## Pros and cons of Vitomuci compared to sub2srs audio tool
 ### Pros:
 * Vitomuci can be executed from the command line, which is faster than clicking around in a GUI.
-* Mp3 clips can be combined into one album with a generated cover, which makes it easier to handle on iPods etc.
-* Directly download YouTube videos/playlists and convert them to mp3 clips without other applications.
+* Mp3 clips can be combined into one album with a generated cover, which makes it easier to use on iPods etc.
+* Directly download YouTube videos/playlists and convert them into mp3 clips without other applications.
 * Remove brackets and rename files to clean up filenames.
 * Automatically detects all video files inside a folder and converts them to short audio clips.
 
 ### Cons:
 * Requires nodejs and npm to be installed.
 * User must be able to navigate inside the command line.
-* Cant be used with video files that have multiple audio tracks.
+* Can't be used with video files that have multiple audio tracks.
+## Installation
+Install **Vitomuci** globally
 
+```shell
+npm install -g vitomuci
+```
 ## Usage
 ```shell
   Usage: vitomuci [options] <directory/file/yt> <output dir(only when dowloading from yt)>
@@ -90,7 +89,7 @@ Convert all videos files matching the regex "testvideoPart*.mp4" to mp3 and spli
 ```shell
 vitomuci -d 2:00 https://www.youtube.com/playlist?list=PLWKjhJtqVAbnZtkAI3BqcYxKnfWn_C704 desktop/
 ```
-Download all videos from the YouTube playlist split them into 2-minute parts.
+Download all videos from the YouTube playlist and split them into 2-minute parts.
 
 ```shell
 vitomuci -d 20 -r /videos/
