@@ -45,6 +45,10 @@ describe('youtube', async function() {
        let result = await vt.downloadVideo("https://www.youtube.com/watch?v=Fa2bG3cMZvM",path.join(testFolder,"test.mp4"));
        expect(fs.existsSync(result)).to.be.true
     });
+    it("getVideoTitle()", async function() {
+    let result = await vt.getVideoTitle("https://www.youtube.com/watch?v=Fa2bG3cMZvM");
+      expect(result).to.be.equal("New rocket test");
+     });
 });
 
 describe('converterFunctions', () => {
@@ -57,7 +61,6 @@ describe('converterFunctions', () => {
 
     });
     it('secondsToTimeString()', () => {
-        console.log(vt.secondsToTimeString(1000));
         expect(vt.secondsToTimeString(60)).to.be.equal("01.00");
         expect(vt.secondsToTimeString(90)).to.be.equal("01.30");
         expect(vt.secondsToTimeString(0)).to.be.equal("00.00");  
