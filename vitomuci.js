@@ -27,11 +27,11 @@ let options;
  * @param {*} process pass process variable, only needed for cli.js
  */
 async function vitomuci(dir, op, process) {
-    
+
     if (typeof dir == undefined) throw "please specify an directory"
     directory = dir;
     processArgv = process || [0, 0, dir]; //gets set when calling as a module
-    
+
     //set default value when calling as a module
     options = Object.assign({
         name: '',
@@ -296,7 +296,9 @@ async function splitTrack(baseDirectory, outputDirectory, name, duration) {
  * @param {Number} end 
  */
 function getSegmentName(name, start, end) {
-    return `${name}_${secondsToTimeString(start)}-${secondsToTimeString(end)}.mp3`
+    let ext = path.extname(name);
+    name = path.removeExt(name, ext);
+    return `${name}_${secondsToTimeString(start)}-${secondsToTimeString(end)}.mp3`;
 }
 
 
@@ -322,8 +324,7 @@ function stringToSeconds(timeString) {
             let ms = timeString.split(':');
             seconds = (+ms[0]) * 60 + (+ms[1]);
         }
-    }
-    else
+    } else
         throw timeString + " is not a number, please only use formats like 123 or 1:30"
 
     return Number(seconds);
