@@ -2,6 +2,8 @@
 const program = require("commander");
 const vt = require("./vitomuci");
 const chalk = require("chalk");
+const notifier = require('node-notifier');
+
 
 
 program
@@ -36,9 +38,17 @@ if (program.args.length === 0) {
 /**
  * call vitomuci, pass over args, opions and argv
  */
+const before = Date.now();
 (async () => {
     try {
         await vt(program.args[0], options, process.argv);
+        notifier.notify({
+            title: "Vitomuci",
+            message: "Finished after "+vt.secondsToTimeString((Date.now() - before)/1000).replace(".",":")+ " min.",
+            sound: true
+          });
+        console.log(chalk.green("Finished after "+vt.secondsToTimeString((Date.now() - before)/1000).replace(".",":")+ " min."));
+
     } catch (error) {
         console.log(chalk.red(error));
     }

@@ -131,7 +131,9 @@ async function vitomuci(dir, op, process) {
         }
         console.log(`updated metadata of ${chalk.blue(files.length)} file(s)`);
     }
+
     await deleteFile(coverPath);
+
 }
 
 
