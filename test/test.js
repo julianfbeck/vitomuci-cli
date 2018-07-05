@@ -18,11 +18,11 @@ describe("Vitomuci", async function () {
 
 describe("Test Renaming", () => {
     let files = [];
-    let renamePath = path.join(testFolder, "rename")
+    let renamePath = path.join(testFolder, "rename");
     it("create files for testing", () => {
         let names = ["[Leopard-Raws] Boku no Hero Academia 3 - 12 RAW (NTV 1280x720 x264 AAC)", "[Leopard-Raws] Boruto - 62 RAW (TX 1280x720 x264 AAC)", "[Ohys-Raws] Akane-iro ni Somaru Saka (BD 1920x1080 x264 AAC)"]
         fs.mkdirSync(renamePath);
-        names.forEach(name => {
+        names.forEach((name) => {
             fs.writeFileSync(path.join(renamePath, name + ".mp4"));
             files.push(path.join(renamePath, name + ".mp4"));
         });

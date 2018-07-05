@@ -7,7 +7,7 @@ const ffprobePath = require("@ffprobe-installer/ffprobe").path;
 const ytdl = require("ytdl-core");
 const ytlist = require("youtube-playlist");
 const isUrl = require("is-url");
-const glob = require("glob")
+const glob = require("glob");
 const fileExists = require("file-exists");
 const chalk = require("chalk");
 const clear = require("clear");
@@ -28,7 +28,7 @@ let options;
  */
 async function vitomuci(dir, op, process) {
 
-    if (typeof dir == undefined) throw "please specify an directory"
+    if (typeof dir == undefined) throw "please specify an directory";
     directory = dir;
     processArgv = process || [0, 0, dir]; //gets set when calling as a module
 
@@ -61,7 +61,7 @@ async function vitomuci(dir, op, process) {
 
     //Download yt videos
     if (isUrl(directory)) {
-        if (typeof options.output === "undefined") throw "please specify an output folder vitomuci: <yt url> <output folder>"
+        if (typeof options.output === "undefined") throw "please specify an output folder vitomuci: <yt url> <output folder>";
         let youtubeDir = path.join(options.output, "YouTube");
         if (directory.indexOf("https://www.youtube.com/") >= 0) {
             //run get playlist
@@ -74,7 +74,7 @@ async function vitomuci(dir, op, process) {
                 if (ytdl.validateURL(video)) {
                     let title = await getVideoTitle(video);
                     title = title.replace(/[/\\?%*:|"<>]/g, "-"); //make sure there are no illeagale characters
-                    spinner.text = `downloading ${chalk.blue(title)}, video ${chalk.blue(i)}/${chalk.blue(videos.length)}`
+                    spinner.text = `downloading ${chalk.blue(title)}, video ${chalk.blue(i)}/${chalk.blue(videos.length)}`;
                     await downloadVideo(video, path.join(youtubeDir, title + ".mp4"));
                     i++;
                 }
@@ -83,7 +83,7 @@ async function vitomuci(dir, op, process) {
             //set directory to youtubeDir
             directory = youtubeDir;
         } else {
-            throw "couldn´t download YouTube video, please only use YouTube links for downloading video(s)"
+            throw "couldn´t download YouTube video, please only use YouTube links for downloading video(s)";
         }
 
     }
@@ -102,20 +102,20 @@ async function vitomuci(dir, op, process) {
         fs.mkdirSync(outputDirectory);
 
 
-    console.log(`found ${chalk.blue(files.length)} file(s), start converting...`)
+    console.log(`found ${chalk.blue(files.length)} file(s), start converting...`);
 
     //main loop
     for (let item of files) {
         let seconds = await getFileLength(item);
         await convertToMp3(baseDirectory, item);
-        let filename = path.basename(item)
+        let filename = path.basename(item);
         let removeType = filename.substr(0, filename.lastIndexOf(".")) || filename;
         await splitTrack(baseDirectory, outputDirectory, filename, Number(seconds));
         await deleteFile(path.join(baseDirectory, "temp.mp3"));
 
     }
 
-    let coverPath = await getCoverPicture(files[0], baseDirectory, options.startAt)
+    let coverPath = await getCoverPicture(files[0], baseDirectory, options.startAt);
 
     //set metadata name to first file in array if not set
     if (options.name === "") {
@@ -125,11 +125,11 @@ async function vitomuci(dir, op, process) {
 
     //updating meta data
     if (options.metadata) {
-        files = fs.readdirSync(outputDirectory)
+        files = fs.readdirSync(outputDirectory);
         for (let file of files) {
             await writeMusicMetadata(path.join(outputDirectory, file), options.name, coverPath);
         }
-        console.log(`updated metadata of ${chalk.blue(files.length)} file(s)`)
+        console.log(`updated metadata of ${chalk.blue(files.length)} file(s)`);
     }
     await deleteFile(coverPath);
 }
@@ -177,7 +177,7 @@ function getFiles(input) {
         //directory
         if (fs.lstatSync(input).isDirectory()) {
             console.log("searching " + chalk.blue(input) + " for files...");
-            let files = []
+            let files = [];
             fs.readdirSync(input).forEach(file => {
                 let stats = fs.statSync(path.join(input, file));
                 if (stats.isFile() && !(file === "temp.mp3"))
@@ -276,7 +276,7 @@ async function splitTrack(baseDirectory, outputDirectory, name, duration) {
     while ((durationIndex + options.duration) <= (duration - options.endAt)) {
         spinner.text = `splitting ${name} into ${chalk.blue(parts + 1)} parts`;
         await segmentMp3(path.join(baseDirectory, "temp.mp3"), path.join(outputDirectory, getSegmentName(name, durationIndex, durationIndex + options.duration)), durationIndex, options.duration);
-        durationIndex += options.duration
+        durationIndex += options.duration;
         parts++;
     }
     if (((duration - options.endAt) - durationIndex) >= 30) {
@@ -284,7 +284,7 @@ async function splitTrack(baseDirectory, outputDirectory, name, duration) {
         await segmentMp3(path.join(baseDirectory, "temp.mp3"), path.join(outputDirectory, getSegmentName(name, durationIndex, duration - options.endAt)), durationIndex, options.duration);
         parts++;
     }
-    spinner.succeed(`Splitted ${name} into ${chalk.blue(parts)} parts`)
+    spinner.succeed(`Splitted ${name} into ${chalk.blue(parts)} parts`);
 
 }
 
@@ -325,7 +325,7 @@ function stringToSeconds(timeString) {
             seconds = (+ms[0]) * 60 + (+ms[1]);
         }
     } else
-        throw timeString + " is not a number, please only use formats like 123 or 1:30"
+        throw timeString + " is not a number, please only use formats like 123 or 1:30";
 
     return Number(seconds);
 }
@@ -339,7 +339,7 @@ function stringToSeconds(timeString) {
 function getFileLength(file) {
     return new Promise((resolve, reject) => {
         ffprobe(file, (err, probeData) => {
-            resolve(probeData.format.duration)
+            resolve(probeData.format.duration);
         });
     });
 }
@@ -393,7 +393,7 @@ function getCoverPicture(file, baseDirectory, picTime) {
                 filename: path.join(baseDirectory, "cover.jpg"),
                 size: "320x240"
             }).on("end", function (stdout, stderr) {
-                resolve(path.join(baseDirectory, "cover.jpg"))
+                resolve(path.join(baseDirectory, "cover.jpg"));
             });
     });
 };
