@@ -1,18 +1,18 @@
-const path = require('upath');
-const fs = require('fs');
-const ffprobe = require('node-ffprobe');
-const ffmpeg = require('fluent-ffmpeg');
-const ffmpegPath = require('@ffmpeg-installer/ffmpeg').path;
-const ffprobePath = require('@ffprobe-installer/ffprobe').path;
-const ytdl = require('ytdl-core');
-const ytlist = require('youtube-playlist');
-const isUrl = require('is-url');
+const path = require("upath");
+const fs = require("fs");
+const ffprobe = require("node-ffprobe");
+const ffmpeg = require("fluent-ffmpeg");
+const ffmpegPath = require("@ffmpeg-installer/ffmpeg").path;
+const ffprobePath = require("@ffprobe-installer/ffprobe").path;
+const ytdl = require("ytdl-core");
+const ytlist = require("youtube-playlist");
+const isUrl = require("is-url");
 const glob = require("glob")
-const fileExists = require('file-exists');
-const chalk = require('chalk');
-const clear = require('clear');
-const figlet = require('figlet');
-const ora = require('ora');
+const fileExists = require("file-exists");
+const chalk = require("chalk");
+const clear = require("clear");
+const figlet = require("figlet");
+const ora = require("ora");
 let ffmetadata;
 
 let videoFormats = [".mkv", ".mp4", ".avi", ".wmv", ".mov", ".amv", ".mpg", ".flv"];
@@ -34,7 +34,7 @@ async function vitomuci(dir, op, process) {
 
     //set default value when calling as a module
     options = Object.assign({
-        name: '',
+        name: "",
         startAt: 0,
         endAt: 0,
         duration: 180,
@@ -51,8 +51,8 @@ async function vitomuci(dir, op, process) {
     clear();
     console.log(
         chalk.blue(
-            figlet.textSync('VITOMUCI', {
-                horizontalLayout: 'full'
+            figlet.textSync("VITOMUCI", {
+                horizontalLayout: "full"
             })
         )
     );
@@ -73,7 +73,7 @@ async function vitomuci(dir, op, process) {
             for (let video of videos) {
                 if (ytdl.validateURL(video)) {
                     let title = await getVideoTitle(video);
-                    title = title.replace(/[/\\?%*:|"<>]/g, '-'); //make sure there are no illeagale characters
+                    title = title.replace(/[/\\?%*:|"<>]/g, "-"); //make sure there are no illeagale characters
                     spinner.text = `downloading ${chalk.blue(title)}, video ${chalk.blue(i)}/${chalk.blue(videos.length)}`
                     await downloadVideo(video, path.join(youtubeDir, title + ".mp4"));
                     i++;
@@ -109,7 +109,7 @@ async function vitomuci(dir, op, process) {
         let seconds = await getFileLength(item);
         await convertToMp3(baseDirectory, item);
         let filename = path.basename(item)
-        let removeType = filename.substr(0, filename.lastIndexOf('.')) || filename;
+        let removeType = filename.substr(0, filename.lastIndexOf(".")) || filename;
         await splitTrack(baseDirectory, outputDirectory, filename, Number(seconds));
         await deleteFile(path.join(baseDirectory, "temp.mp3"));
 
@@ -120,7 +120,7 @@ async function vitomuci(dir, op, process) {
     //set metadata name to first file in array if not set
     if (options.name === "") {
         let filename = path.basename(files[0])
-        options.name = filename.substr(0, filename.lastIndexOf('.')) || filename;
+        options.name = filename.substr(0, filename.lastIndexOf(".")) || filename;
     }
 
     //updating meta data
@@ -146,7 +146,7 @@ function checkffmpeg() {
     process.env.FFMPEG_PATH = ffmpegPath;
     ffprobe.FFPROBE_PATH = ffprobePath;
     ffmetadata = require("ffmetadata");
-    console.log(chalk.green('ffmpeg installed at:' + ffmpegPath));
+    console.log(chalk.green("ffmpeg installed at:" + ffmpegPath));
 }
 
 
@@ -230,12 +230,12 @@ function convertToMp3(baseDirectory, input) {
     return new Promise((resolve, reject) => {
         let fileInfo;
         const spinner = ora(`converting ${input} to mp3`).start();
-        ffmpeg(input).format('mp3').save(baseDirectory + "/temp.mp3").on('error', console.error)
-            .on('codecData', function (data) {
+        ffmpeg(input).format("mp3").save(baseDirectory + "/temp.mp3").on("error", console.error)
+            .on("codecData", function (data) {
                 fileInfo = data;
-            }).on('progress', function (progress) {
+            }).on("progress", function (progress) {
                 spinner.text = `converting ${input} to mp3: ${chalk.blue(progress.timemark)}`;
-            }).on('end', function (stdout, stderr) {
+            }).on("end", function (stdout, stderr) {
                 spinner.succeed(`converting ${input} to mp3`);
                 resolve(fileInfo);
             });
@@ -253,8 +253,8 @@ function convertToMp3(baseDirectory, input) {
  */
 function segmentMp3(input, output, start, duration) {
     return new Promise((resolve, reject) => {
-        ffmpeg(input).seekInput(start).duration(duration).save(output).on('error', console.error)
-            .on('end', function (stdout, stderr) {
+        ffmpeg(input).seekInput(start).duration(duration).save(output).on("error", console.error)
+            .on("end", function (stdout, stderr) {
                 resolve();
             });
     });
@@ -319,9 +319,9 @@ function stringToSeconds(timeString) {
     let seconds = 0;
     if (!isNaN(timeString))
         seconds = timeString;
-    else if (typeof timeString === 'string' || timeString instanceof String) {
+    else if (typeof timeString === "string" || timeString instanceof String) {
         if (timeString.indexOf(":") > -1) {
-            let ms = timeString.split(':');
+            let ms = timeString.split(":");
             seconds = (+ms[0]) * 60 + (+ms[1]);
         }
     } else
@@ -391,8 +391,8 @@ function getCoverPicture(file, baseDirectory, picTime) {
             .screenshots({
                 timestamps: [picTime],
                 filename: path.join(baseDirectory, "cover.jpg"),
-                size: '320x240'
-            }).on('end', function (stdout, stderr) {
+                size: "320x240"
+            }).on("end", function (stdout, stderr) {
                 resolve(path.join(baseDirectory, "cover.jpg"))
             });
     });
@@ -444,7 +444,7 @@ function rename(files) {
 async function downloadVideo(url, dir) {
     return new Promise((resolve, reject) => {
         ytdl(url)
-            .pipe(fs.createWriteStream(dir)).on('finish', () => {
+            .pipe(fs.createWriteStream(dir)).on("finish", () => {
                 resolve(dir);
             });
     });
@@ -458,7 +458,7 @@ async function downloadVideo(url, dir) {
 async function getPlaylist(url) {
     const spinner = ora(`searching for youtube video(s)...`).start();
     return new Promise((resolve, reject) => {
-        ytlist(url, 'url').then(res => {
+        ytlist(url, "url").then(res => {
             spinner.succeed();
             resolve(res.data.playlist);
         });
