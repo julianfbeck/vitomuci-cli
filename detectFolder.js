@@ -5,7 +5,6 @@ const folder = "testfolder/";
 const {
     spawn
 } = require('child_process');
- fs.watchFile(folder, listener1);
 
  async function listener1(current,previous) {
      console.log(current,previous);
@@ -18,4 +17,6 @@ const {
         console.log("no directory");
     }
 }
+
+fs.watchFile(folder, listener1);
 
