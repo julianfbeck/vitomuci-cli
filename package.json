@@ -22,6 +22,7 @@
     "file-exists": "^5.0.1",
     "fluent-ffmpeg": "^2.1.2",
     "glob": "^7.1.2",
+    "inquirer": "^6.0.0",
     "is-url": "^1.2.4",
     "node-ffprobe": "github:ListenerApproved/node-ffprobe",
     "node-notifier": "^5.2.1",
