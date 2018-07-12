@@ -1,5 +1,4 @@
 #!/usr/bin/env node
-
 const program = require("commander");
 const vt = require("./vitomuci");
 const chalk = require("chalk");
@@ -17,6 +16,7 @@ program
     .option("-c, --cover", "if a cover photo should be added to the mp3 metadata", true)
     .option("-m, --metadata", "adds metadata to all generated clips to combine them to one compilation", true)
     .option("-r, --rename", "removes text inside brackets to cleanup filenames like (1080p)", false)
+    .option("-f, --full", "convert the full file without splitting", false)
     .parse(process.argv);
 
 //pack program options into one object
@@ -28,7 +28,8 @@ let options = {
     name: program.name,
     cover: program.cover,
     rename: program.rename,
-    metadata: program.cover ||program.name ? true : program.metadata
+    metadata: program.cover ||program.name ? true : program.metadata,
+    full: program.full
 };
 
 if (program.args.length === 0) {
