@@ -29,7 +29,9 @@ if (program.args.length === 0) {
     program.help();
 }
 
-
+/**
+ * Get Options, via command or interactive shell
+ */
 async function getOptions() {
     let options;
     if (program.interactive) {

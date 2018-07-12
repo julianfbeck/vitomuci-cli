@@ -1,5 +1,7 @@
 const inquirer = require('inquirer');
-
+/**
+ * generate custom prompts for interactive shell
+ */
 module.exports = async () => {
     const answers = await inquirer
         .prompt([{
@@ -62,13 +64,11 @@ module.exports = async () => {
                 when: answers => !answers.full
             },
         ]);
-
+     
     answers.metadata = answers.cover ||answers.name ? true : answers.metadata;
     answers.name = answers.name || "";
     answers.startAt = answers.startAt || 0;
     answers.endAt = answers.endAt || 0;
     answers.duration = answers.duration || 180;
-
-
     return answers;
 };
