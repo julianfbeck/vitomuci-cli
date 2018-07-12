@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+
 const program = require("commander");
 const vt = require("./vitomuci");
 const chalk = require("chalk");
@@ -27,7 +28,7 @@ let options = {
     name: program.name,
     cover: program.cover,
     rename: program.rename,
-    metadata: program.metadata
+    metadata: program.cover ||program.name ? true : program.metadata
 };
 
 if (program.args.length === 0) {
@@ -44,10 +45,10 @@ const before = Date.now();
         await vt(program.args[0], options, process.argv);
         notifier.notify({
             title: "Vitomuci",
-            message: "Finished after "+vt.secondsToTimeString((Date.now() - before)/1000).replace(".",":")+ " min.",
+            message: "Finished after " + vt.secondsToTimeString((Date.now() - before) / 1000).replace(".", ":") + " min.",
             sound: true
-          });
-        console.log(chalk.green("Finished after "+vt.secondsToTimeString((Date.now() - before)/1000).replace(".",":")+ " min."));
+        });
+        console.log(chalk.green("Finished after " + vt.secondsToTimeString((Date.now() - before) / 1000).replace(".", ":") + " min."));
 
     } catch (error) {
         console.log(chalk.red(error));
