@@ -166,4 +166,15 @@ describe("Full Tests", async function () {
         rimraf.sync(testFolder + "/YouTube/audio");
     });
 
+    it("Convert file without splitting", async function () {
+        let option = {
+            full:true,
+        };
+        let output = "Mediator Design Pattern - Beau teaches JavaScript";
+        await vt(testFolder + "/YouTube/Mediator Design Pattern - Beau teaches JavaScript.mp4", option);
+        let result = fs.readdirSync(testFolder + "/YouTube/audio");
+        expect(result[0]).to.be.ok
+        rimraf.sync(testFolder + "/YouTube/audio");
+    });
+
 });
