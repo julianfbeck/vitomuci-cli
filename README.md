@@ -31,6 +31,7 @@ npm install -g vitomuci
   Options:
 
     -V, --version              output the version number
+    -i  --interactive          interactive, start interactive mode
     -s, --start [start]        seconds or mm:ss, cut away start from the beginning to remove advertisment etc. (default: 0)
     -e, --end [end]            seconds or mm:ss, cut away end from the end to remove advertisment etc. (default: 0)
     -d, --duration [duration]  seconds or mm:ss, the duration of the clips the file gets split to (default: 3:00)
@@ -38,6 +39,7 @@ npm install -g vitomuci
     -c, --cover                add a cover to he generated metadata
     -m, --metadata             adds metadata to all generated clips to combine them to one album
     -r, --rename               removes text inside brackets to cleanup filenames like (1080p)
+    -f, --full                 convert the full file without splitting
     -h, --help                 output usage information
 ```
 ### Make audio clips for all files inside a folder:
@@ -65,6 +67,8 @@ vitomuci <ytlink> <output folder>
 vitomuci will create a YouTube folder and keep the downloaded .mp4 files 
 
 ## Options
+**-i, --interactive:** start interactive mode, ask you all options via interactive questions
+
 **-s, --start [start]:** time you want to skip from the beginning of a file. -s 60 or -s 1:00 will skip the first 60 seconds of a file before creating mp3 clips. Useful when you want to remove intros or openings.
 
 **-e, --end [end]:** time you want to skip from the end of a file. -e 60 or -s 1:00 will skip the last 60 seconds of a file. Useful when you want to remove outros or endings.
@@ -73,11 +77,14 @@ vitomuci will create a YouTube folder and keep the downloaded .mp4 files
 
 **-m, --metadata:** Adds album, artist and disc metadata to combine all clips into one album. Useful if you want the clips to show up as one album and not one album per clip. *Default: false*
 
-**-n, --name [name]:** name of to album for the clips. Default: Name of the first file. **Requires -metadata to be set**
+**-n, --name [name]:** name of to album for the clips. Default: Name of the first file. 
 
-**-c, --cover:** Takes a picture and use it as cover for the generated album. *Default: false.* **Requires -metadata to be set**
+**-c, --cover:** Takes a picture and use it as cover for the generated album. *Default: false.* 
 
 **-r, --rename:** Removes text inside brackets to cleanup filenames. Removes brackets like (1080p60) or [Japanese]. 
+
+**-f, --full:**   convert the full file without splitting. When this is enabled, vitomuci will convert media into one single mp3 clip, without splitting. Useful for music etc.
+
 
 
 ## Examples
