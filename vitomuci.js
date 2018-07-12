@@ -272,7 +272,7 @@ async function splitTrack(baseDirectory, outputDirectory, name, duration) {
         await segmentMp3(path.join(baseDirectory, name), path.join(outputDirectory, getSegmentName(name, durationIndex, duration - options.endAt)), durationIndex, options.duration);
         parts++;
     }
-    spinner.succeed(`Splitted ${name} into ${chalk.blue(parts)} parts`);
+    spinner.succeed(`splitted ${name} into ${chalk.blue(parts)} parts`);
 
 }
 
@@ -419,7 +419,7 @@ function rename(files) {
         renamedFiles.push(newName);
         fs.renameSync(file, newName);
     });
-    console.log("renamed files to " + renamedFiles);
+    console.log(`renamed ${chalk.blue(renamedFiles.length)} files.`);
     return renamedFiles;
 }
 
