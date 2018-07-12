@@ -41,6 +41,7 @@ async function vitomuci(dir, op, process) {
         cover: false,
         rename: false,
         metadata: false,
+        full: false,
     }, op);
 
     //parse time stamps to seconds
@@ -104,13 +105,11 @@ async function vitomuci(dir, op, process) {
 
     console.log(`found ${chalk.blue(files.length)} file(s), start converting...`);
 
-    //main loop
+    //Split track
     for (let item of files) {
         let seconds = await getFileLength(item);
         let filename = path.basename(item);
-        let removeType = filename.substr(0, filename.lastIndexOf(".")) || filename;
         await splitTrack(baseDirectory, outputDirectory, filename, Number(seconds));
-
     }
 
     let coverPath = await getCoverPicture(files[0], baseDirectory, options.startAt);
@@ -249,9 +248,20 @@ function segmentMp3(input, output, start, duration) {
  * @param {Number} duration 
  */
 async function splitTrack(baseDirectory, outputDirectory, name, duration) {
-    let durationIndex = options.startAt;
     let parts = 0;
     const spinner = ora(`splitting ${name} into ${chalk.blue(parts + 1)} parts`).start();
+
+    //if you dont want seprate clips
+    if (options.full) {
+        let ext = path.extname(name);
+        let newName = path.removeExt(name, ext);
+        await segmentMp3(path.join(baseDirectory, name), path.join(outputDirectory, newName + ".mp3"), 0, duration);
+        spinner.succeed(`Converted ${chalk.blue(newName)} into mp3`);
+        return;
+    }
+
+    let durationIndex = options.startAt;
+  
     while ((durationIndex + options.duration) <= (duration - options.endAt)) {
         spinner.text = `splitting ${name} into ${chalk.blue(parts + 1)} parts`;
         await segmentMp3(path.join(baseDirectory, name), path.join(outputDirectory, getSegmentName(name, durationIndex, durationIndex + options.duration)), durationIndex, options.duration);
