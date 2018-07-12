@@ -107,11 +107,9 @@ async function vitomuci(dir, op, process) {
     //main loop
     for (let item of files) {
         let seconds = await getFileLength(item);
-        await convertToMp3(baseDirectory, item);
         let filename = path.basename(item);
         let removeType = filename.substr(0, filename.lastIndexOf(".")) || filename;
         await splitTrack(baseDirectory, outputDirectory, filename, Number(seconds));
-        await deleteFile(path.join(baseDirectory, "temp.mp3"));
 
     }
 
@@ -224,27 +222,6 @@ function verifyFiles(files) {
 
 
 /**
- * Converts a media file into a mp3 file called temp.mp3
- * @param {*} baseDirectory 
- * @param {*} input 
- */
-function convertToMp3(baseDirectory, input) {
-    return new Promise((resolve, reject) => {
-        let fileInfo;
-        const spinner = ora(`converting ${input} to mp3`).start();
-        ffmpeg(input).format("mp3").save(baseDirectory + "/temp.mp3").on("error", console.error)
-            .on("codecData", function (data) {
-                fileInfo = data;
-            }).on("progress", function (progress) {
-                spinner.text = `converting ${input} to mp3: ${chalk.blue(progress.timemark)}`;
-            }).on("end", function (stdout, stderr) {
-                spinner.succeed(`converting ${input} to mp3`);
-                resolve(fileInfo);
-            });
-    });
-};
-
-/**
  * Extracts one clip out of a longer mp3 file using the 
  * seekInput and duration fuction.
  * Gets called when splitting up a larger file smaller ones
@@ -264,7 +241,7 @@ function segmentMp3(input, output, start, duration) {
 
 
 /**
- * Splits a mp3 file into multiple smaler sized parts and renames them
+ * Splits a mp3 file into multiple smaller sized parts and renames them
  * if part is shorter than 30 seconds it gets skipped
  * @param {String} baseDirectory 
  * @param {String} outputDirectory 
@@ -277,13 +254,13 @@ async function splitTrack(baseDirectory, outputDirectory, name, duration) {
     const spinner = ora(`splitting ${name} into ${chalk.blue(parts + 1)} parts`).start();
     while ((durationIndex + options.duration) <= (duration - options.endAt)) {
         spinner.text = `splitting ${name} into ${chalk.blue(parts + 1)} parts`;
-        await segmentMp3(path.join(baseDirectory, "temp.mp3"), path.join(outputDirectory, getSegmentName(name, durationIndex, durationIndex + options.duration)), durationIndex, options.duration);
+        await segmentMp3(path.join(baseDirectory, name), path.join(outputDirectory, getSegmentName(name, durationIndex, durationIndex + options.duration)), durationIndex, options.duration);
         durationIndex += options.duration;
         parts++;
     }
     if (((duration - options.endAt) - durationIndex) >= 30) {
         spinner.text = `splitting ${name} into ${chalk.blue(parts + 1)} parts`;
-        await segmentMp3(path.join(baseDirectory, "temp.mp3"), path.join(outputDirectory, getSegmentName(name, durationIndex, duration - options.endAt)), durationIndex, options.duration);
+        await segmentMp3(path.join(baseDirectory, name), path.join(outputDirectory, getSegmentName(name, durationIndex, duration - options.endAt)), durationIndex, options.duration);
         parts++;
     }
     spinner.succeed(`Splitted ${name} into ${chalk.blue(parts)} parts`);
