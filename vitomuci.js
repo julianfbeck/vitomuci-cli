@@ -89,11 +89,17 @@ async function vitomuci(dir, op, process) {
 
     }
     //get files
+    const fileSpinner = ora(`searching for files...`).start();
     let files = getFiles(directory);
     //check if files are media files
     files = verifyFiles(files);
+    if (typeof files === "undefined" || files.length == 0) {
+        fileSpinner.fail("no file where found inside " + directory)
+        throw "no files where found inside " + directory;
+    }
+    fileSpinner.succeed(`found ${chalk.blue(files.length)} file(s), start converting...`)
+
     //rename files
-    if (typeof files === "undefined" || files.length == 0) throw "no files where found inside " + directory;
     files = options.rename ? rename(files) : files;
     let baseDirectory = path.dirname(files[0]);
     let outputDirectory = path.join(baseDirectory, "audio");
@@ -102,9 +108,6 @@ async function vitomuci(dir, op, process) {
     if (!fs.existsSync(outputDirectory))
         fs.mkdirSync(outputDirectory);
 
-
-    console.log(`found ${chalk.blue(files.length)} file(s), start converting...`);
-
     //Split track
     for (let item of files) {
         let seconds = await getFileLength(item);
@@ -112,23 +115,27 @@ async function vitomuci(dir, op, process) {
         await splitTrack(baseDirectory, outputDirectory, filename, Number(seconds));
     }
 
-    let coverPath = await getCoverPicture(files[0], baseDirectory, options.startAt);
-
     //set metadata name to first file in array if not set
     if (options.name === "") {
         let filename = path.basename(files[0])
         options.name = filename.substr(0, filename.lastIndexOf(".")) || filename;
     }
+    //take cover picture
+    let cover = "";
+    if (options.cover)
+        coverPath = await getCoverPicture(files[0], baseDirectory, options.startAt);
 
     //updating meta data
     if (options.metadata) {
+        const metadataSpinner = ora(`searching for files...`).start();
         files = fs.readdirSync(outputDirectory);
         for (let file of files) {
             await writeMusicMetadata(path.join(outputDirectory, file), options.name, coverPath);
         }
-        console.log(`updated metadata of ${chalk.blue(files.length)} file(s)`);
+        metadataSpinner.succeed(`updated metadata of ${chalk.blue(files.length)} file(s)`);
     }
-    await deleteFile(coverPath);
+
+    if (options.cover) await deleteFile(coverPath);
 
 }
 
@@ -138,13 +145,13 @@ async function vitomuci(dir, op, process) {
  * packages that require it
  */
 function checkffmpeg() {
-
     ffmpeg.setFfmpegPath(ffmpegPath);
     ffmpeg.setFfprobePath(ffprobePath);
     process.env.FFMPEG_PATH = ffmpegPath;
     ffprobe.FFPROBE_PATH = ffprobePath;
     ffmetadata = require("ffmetadata");
-    console.log(chalk.green("ffmpeg installed at:" + ffmpegPath));
+    console.log(chalk.grey("ffmpeg installed at:" + ffmpegPath));
+    return ffmpegPath;
 }
 
 
@@ -158,6 +165,7 @@ function checkffmpeg() {
  */
 function getFiles(input) {
     try {
+
         //cli supports regex matching
         if (!isUrl(processArgv[2]) && fileExists.sync(directory)) {
             let files = [];
@@ -174,11 +182,10 @@ function getFiles(input) {
         }
         //directory
         if (fs.lstatSync(input).isDirectory()) {
-            console.log("searching " + chalk.blue(input) + " for files...");
             let files = [];
             fs.readdirSync(input).forEach(file => {
                 let stats = fs.statSync(path.join(input, file));
-                if (stats.isFile() && !(file === "temp.mp3"))
+                if (stats.isFile())
                     files.push(path.join(input, file));
             });
             return (files.sort());
@@ -186,7 +193,6 @@ function getFiles(input) {
         throw "no dir"
     } catch (error) {
         //falls back here if cli doesnt supports regex matching
-        console.log("searching for matching file(s)... " + input);
         //remove brackets
         let removeB = "";
         for (let i = 0; i < input.length; i++) {
@@ -233,6 +239,8 @@ function segmentMp3(input, output, start, duration) {
         ffmpeg(input).seekInput(start).duration(duration).save(output).on("error", console.error)
             .on("end", function (stdout, stderr) {
                 resolve();
+            }).on('error', function (err, stdout, stderr) {
+                reject('Cannot process video: ' + err.message);
             });
     });
 };
@@ -260,7 +268,7 @@ async function splitTrack(baseDirectory, outputDirectory, name, duration) {
     }
 
     let durationIndex = options.startAt;
-  
+
     while ((durationIndex + options.duration) <= (duration - options.endAt)) {
         spinner.text = `splitting ${name} into ${chalk.blue(parts + 1)} parts`;
         await segmentMp3(path.join(baseDirectory, name), path.join(outputDirectory, getSegmentName(name, durationIndex, durationIndex + options.duration)), durationIndex, options.duration);
@@ -327,6 +335,7 @@ function stringToSeconds(timeString) {
 function getFileLength(file) {
     return new Promise((resolve, reject) => {
         ffprobe(file, (err, probeData) => {
+            if(err) reject(err);
             resolve(probeData.format.duration);
         });
     });
@@ -372,8 +381,7 @@ function writeMusicMetadata(file, compilationName, cover) {
  * @param {String} picTime 
  */
 function getCoverPicture(file, baseDirectory, picTime) {
-    if (options.cover)
-        console.log(`took cover picture from ${chalk.blue(file)} at ${chalk.blue(picTime)}`);
+    const coverPicture = ora(`took cover picture from ${chalk.blue(file)} at ${chalk.blue(picTime)}`).start();
     return new Promise((resolve, reject) => {
         ffmpeg(file)
             .screenshots({
@@ -381,8 +389,11 @@ function getCoverPicture(file, baseDirectory, picTime) {
                 filename: path.join(baseDirectory, "cover.jpg"),
                 size: "320x240"
             }).on("end", function (stdout, stderr) {
+                coverPicture.succeed(`took cover picture from ${chalk.blue(file)} at ${chalk.blue(picTime)}`);
                 resolve(path.join(baseDirectory, "cover.jpg"));
-            });
+            }).on('error', function (err, stdout, stderr) {
+                coverPicture.fail(chalk.red(err.message));
+            });;
     });
 };
 
@@ -395,7 +406,7 @@ function deleteFile(file) {
     return new Promise((resolve, reject) => {
         fs.unlink(file, function (error) {
             if (error) {
-                throw error;
+                reject(error);
             }
             resolve();
         });
@@ -409,6 +420,8 @@ function deleteFile(file) {
  * @param {Array} files 
  */
 function rename(files) {
+    const spinner = ora(`renaming files...`).start();
+
     let renamedFiles = [];
     files.forEach(function (file) {
         let basename = path.basename(file);
@@ -419,7 +432,7 @@ function rename(files) {
         renamedFiles.push(newName);
         fs.renameSync(file, newName);
     });
-    console.log(`renamed ${chalk.blue(renamedFiles.length)} files.`);
+    spinner.succeed(`renamed ${chalk.blue(renamedFiles.length)} files.`);
     return renamedFiles;
 }
 
