@@ -1,6 +1,6 @@
 {
   "name": "vitomuci",
-  "version": "1.3.2",
+  "version": "2.0.0",
   "description": "download youtube videos or convert videos to mp3 and split them into short clips",
   "main": "vitomuci.js",
   "directories": {
