@@ -35,7 +35,8 @@
   "files": [
     "README.md",
     "cli.js",
-    "vitomuci.js"
+    "vitomuci.js",
+    "interactive.js"
   ],
   "keywords": [
     "language",
