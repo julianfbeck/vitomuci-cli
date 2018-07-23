@@ -6,7 +6,7 @@
 
 **Vitomuci** is a video to mp3 converter that splits the video file into small audio clips and combines them into one album with a generated cover. It is also possible to download videos and playlists directly and split them into clips.
 It is inspired by the [sub2srs](http://subs2srs.sourceforge.net/#extract_audio) extract Audio from Media Tool.
-## Pros and cons of Vitomuci compared to sub2srs audio tool
+## Pros and cons of Vitomuci compared to sub2srs audio extraction tool
 ### Pros:
 * Vitomuci can be executed from the command line, which is faster than clicking around in a GUI.
 * Mp3 clips can be combined into one album with a generated cover, which makes it easier to use on iPods etc.
@@ -32,30 +32,30 @@ npm install -g vitomuci
 
     -V, --version              output the version number
     -i  --interactive          interactive, start interactive mode
-    -s, --start [start]        seconds or mm:ss, cut away start from the beginning to remove advertisment etc. (default: 0)
-    -e, --end [end]            seconds or mm:ss, cut away end from the end to remove advertisment etc. (default: 0)
+    -s, --start [start]        seconds or mm:ss, cut away from the beginning to remove advertisment, intros etc. (default: 0)
+    -e, --end [end]            seconds or mm:ss, cut away from the end to remove advertisment, outros etc. (default: 0)
     -d, --duration [duration]  seconds or mm:ss, the duration of the clips the file gets split to (default: 3:00)
-    -n, --name [name]          the name of the clips and metadata (default: null)
-    -c, --cover                add a cover to he generated metadata
-    -m, --metadata             adds metadata to all generated clips to combine them to one album
-    -r, --rename               removes text inside brackets to cleanup filenames like (1080p)
-    -f, --full                 convert the full file without splitting
+    -n, --name [name]          the album / compilation name
+    -c, --cover                add a cover a album / compilation
+    -m, --metadata             adds metadata to all generated clips to combine them to one compilation. 
+    -r, --rename               removes text inside brackets to cleanup filenames like (1080p) [raw]
+    -f, --full                 converts the full file without splitting
     -h, --help                 output usage information
 ```
-### Make audio clips for all files inside a folder:
+#### Make audio clips for all files inside a folder:
 ```shell
 vitomuci /videos/
 ```
-### Make audio clips for all files matching a regex string:
+#### Make audio clips for all files matching a regex string:
 ```shell
 vitomuci /videos/terrace house Episode??.mp4
 ```
 
-### Download a YouTube video and split it into audio clips:
+#### Download a YouTube video and split it into audio clips:
 ```shell
 vitomuci https://www.youtube.com/watch?v=Qrli6PxgxFM Desktop/
 ```
-### Download a YouTube playlist and split it into audio clips:
+#### Download a YouTube playlist and split it into audio clips:
 ```shell
 vitomuci https://www.youtube.com/playlist?list=PLuf9JIUOHQ-NC98LUExv1WWl4mwPXzwnI Desktop/
 ```
@@ -66,7 +66,7 @@ vitomuci <ytlink> <output folder>
 ```
 vitomuci will create a YouTube folder and keep the downloaded .mp4 files 
 
-## Options
+### Options
 **-i, --interactive:** start interactive mode, ask you all options via interactive questions
 
 **-s, --start [start]:** time you want to skip from the beginning of a file. -s 60 or -s 1:00 will skip the first 60 seconds of a file before creating mp3 clips. Useful when you want to remove intros or openings.
@@ -87,7 +87,7 @@ vitomuci will create a YouTube folder and keep the downloaded .mp4 files
 
 
 
-## Examples
+### Examples
 ```shell
 vitomuci -s 0:30 -e 30 -d 1:00 -c -m /videos/testvideoPart*.mp4
 ```
