@@ -11,6 +11,7 @@ It is inspired by the [sub2srs](http://subs2srs.sourceforge.net/#extract_audio) 
 * Vitomuci can be executed from the command line, which is faster than clicking around in a GUI.
 * Mp3 clips can be combined into one album with a generated cover, which makes it easier to use on iPods etc.
 * Directly download YouTube videos/playlists and convert them into mp3 clips without other applications.
+* Directly download Podcasts from RSS feeds and split them into smaller sizes
 * Remove brackets and rename files to clean up filenames.
 * Automatically detects all video files inside a folder and converts them to short audio clips.
 
