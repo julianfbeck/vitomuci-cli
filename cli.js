@@ -12,7 +12,7 @@ program
     .version("0.0.1")
     .usage("[options] <directory> <output dir(only when dowloading from yt)> ")
     .option("-i, --interactive", "start interactive mode", false)
-    .option("-p, --podcastLimit", "the amount of empisodes you want to download, no limit will download every episoe", 0)
+    .option("-p, --podcastLimit", "the amount of podcast episodes to download", 0)
     .option("-s, --start [start]", "in s: cut away start from the beginning to remove advertisment etc.", 0)
     .option("-e, --end [end]", "in s: cut away from the end to remove advertisment etc.", 0)
     .option("-d, --duration [duration]", "the duration of the clips the file gets split to", 180)
