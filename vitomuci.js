@@ -73,15 +73,19 @@ async function vitomuci(dir, op, process) {
             let youtubeDir = path.join(options.output, "YouTube");
             //run get playlist
             let videos
+
             //check if single video or playlist
             try {
                 videos = await getPlaylist(directory);
+                if (videos.length == 0) videos = [directory];
             } catch (error) {
+                console.log(error);
                 videos = [directory];
             }
-            fs.mkdirSync(youtubeDir);
 
             urlSpinner.succeed(`Found ${chalk.blue(videos.length)} YouTube video(s)`);
+            fs.mkdirSync(youtubeDir);
+
             const spinner = ora(`downloading ${chalk.blue(videos.length)} video(s)...`).start();
             let i = 1;
             for (let video of videos) {
@@ -97,12 +101,13 @@ async function vitomuci(dir, op, process) {
             //set directory to youtubeDir
             directory = youtubeDir;
         } else {
+            //check for podcast
             let rss
             try {
                 rss = await getRSS(directory);
             } catch (error) {
                 urlSpinner.fail(`Could not detect podcast rss feed or YouTube link`);
-                throw(directory+"is not a YouTube or RSS feed url");
+                throw (directory + " is not a YouTube or RSS feed url");
             }
             //create podcast output folder
             urlSpinner.succeed(`Found ${chalk.blue(rss.episodes.length)} Podcast episodes`);
