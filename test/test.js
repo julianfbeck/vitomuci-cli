@@ -183,9 +183,9 @@ describe("Full Tests", async function () {
             output:testFolder
         };
         await vt("https://collegeinfogeek.com/podcast", option);
-        let result = fs.readdirSync(testFolder + "/The College Info Geek Podcast- Study Tips - Advice for Students/audio");
+        let result = fs.readdirSync(testFolder + "/Podcast");
         expect(result).to.be.an("array");
-        rimraf.sync(testFolder + "/The College Info Geek Podcast- Study Tips - Advice for Students/audio");
+        rimraf.sync(testFolder + "/Podcast/audio");
     });
 
 

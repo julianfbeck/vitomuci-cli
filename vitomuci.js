@@ -69,8 +69,8 @@ async function vitomuci(dir, op, process) {
         const urlSpinner = ora(`Detected ${chalk.blue(directory)} as url`).start();
 
         if (typeof options.output === "undefined") throw "please specify an output folder vitomuci: <yt url> <output folder>";
-     let youtubeDir = path.join(options.output, "YouTube");
         if (directory.indexOf("https://www.youtube.com/") >= 0) {
+            let youtubeDir = path.join(options.output, "YouTube");
             //run get playlist
             let videos
             //check if single video or playlist
@@ -106,15 +106,18 @@ async function vitomuci(dir, op, process) {
             }
             //create podcast output folder
             urlSpinner.succeed(`Found ${chalk.blue(rss.episodes.length)} Podcast episodes`);
-            let podcastDir = path.join(options.output, rss.title.replace(/[/\\?%*:|"<>&]/g, "-"));
+            let podcastDir = path.join(options.output, "Podcast");
             fs.mkdirSync(podcastDir);
             let episodes = options.podcastLimit == 0 ? rss.episodes : rss.episodes.slice(0, options.podcastLimit);
-            console.log(`Found ${episodes.length} episodes`);
+            const downloadSpinner = ora(`Start downloading ${chalk.blue(episodes.length)} episodes(s)...`).start();
+            let i = 0;
             for (const podcast of episodes) {
-                console.log(podcast.title);
+                i++;
+                downloadSpinner.text = `downloading ${chalk.blue(podcast.title)}, podcast ${chalk.blue(i)}/${chalk.blue(episodes.length)}`;
                 await downloadAudio(path.join(podcastDir, podcast.title.replace(/[/\\?%*:|"<>&]/g, "-") + ".mp3"), podcast.enclosure.url);
             }
-            console.log("finished downloading");
+            downloadSpinner.succeed(`downloaded ${chalk.blue(episodes.length)} Podcast episode(s)`);
+
             //set main directory to podcast
             directory = podcastDir
         }
@@ -489,10 +492,8 @@ async function downloadVideo(url, dir) {
  * @param {String} url of the youtube video 
  */
 async function getPlaylist(url) {
-    const spinner = ora(`searching for youtube video(s)...`).start();
     return new Promise((resolve, reject) => {
         ytlist(url, "url").then(res => {
-            spinner.succeed();
             resolve(res.data.playlist);
         });
     });
