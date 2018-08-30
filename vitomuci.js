@@ -69,11 +69,16 @@ async function vitomuci(dir, op, process) {
         const urlSpinner = ora(`Detected ${chalk.blue(directory)} as url`).start();
 
         if (typeof options.output === "undefined") throw "please specify an output folder vitomuci: <yt url> <output folder>";
-        let youtubeDir = path.join(options.output, "YouTube");
+     let youtubeDir = path.join(options.output, "YouTube");
         if (directory.indexOf("https://www.youtube.com/") >= 0) {
             //run get playlist
-            let videos = await getPlaylist(directory);
-            if (videos.length == 0) videos = [directory];
+            let videos
+            //check if single video or playlist
+            try {
+                videos = await getPlaylist(directory);
+            } catch (error) {
+                videos = [directory];
+            }
             fs.mkdirSync(youtubeDir);
 
             urlSpinner.succeed(`Found ${chalk.blue(videos.length)} YouTube video(s)`);
