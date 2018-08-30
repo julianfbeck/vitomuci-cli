@@ -13,9 +13,12 @@ const chalk = require("chalk");
 const clear = require("clear");
 const figlet = require("figlet");
 const ora = require("ora");
+const request = require('request');
+const parsePodcast = require('node-podcast-parser');
+
 let ffmetadata;
 
-let videoFormats = [".mkv", ".mp4", ".avi", ".wmv", ".mov", ".amv", ".mpg", ".flv"];
+let videoFormats = [".mp3", ".mkv", ".mp4", ".avi", ".wmv", ".mov", ".amv", ".mpg", ".flv"];
 let directory;
 let processArgv;
 let options;
@@ -42,6 +45,7 @@ async function vitomuci(dir, op, process) {
         rename: false,
         metadata: false,
         full: false,
+        podcastLimit: 0
     }, op);
 
     //parse time stamps to seconds
@@ -62,6 +66,8 @@ async function vitomuci(dir, op, process) {
 
     //Download yt videos
     if (isUrl(directory)) {
+        const urlSpinner = ora(`Detected ${chalk.blue(directory)} as url`).start();
+
         if (typeof options.output === "undefined") throw "please specify an output folder vitomuci: <yt url> <output folder>";
         let youtubeDir = path.join(options.output, "YouTube");
         if (directory.indexOf("https://www.youtube.com/") >= 0) {
@@ -69,12 +75,14 @@ async function vitomuci(dir, op, process) {
             let videos = await getPlaylist(directory);
             if (videos.length == 0) videos = [directory];
             fs.mkdirSync(youtubeDir);
+
+            urlSpinner.succeed(`Found ${chalk.blue(videos.length)} YouTube video(s)`);
             const spinner = ora(`downloading ${chalk.blue(videos.length)} video(s)...`).start();
             let i = 1;
             for (let video of videos) {
                 if (ytdl.validateURL(video)) {
                     let title = await getVideoTitle(video);
-                    title = title.replace(/[/\\?%*:|"<>]/g, "-"); //make sure there are no illeagale characters
+                    title = title.replace(/[/\\?%*:|"<>&]/g, "-"); //make sure there are no illeagale characters
                     spinner.text = `downloading ${chalk.blue(title)}, video ${chalk.blue(i)}/${chalk.blue(videos.length)}`;
                     await downloadVideo(video, path.join(youtubeDir, title + ".mp4"));
                     i++;
@@ -84,7 +92,26 @@ async function vitomuci(dir, op, process) {
             //set directory to youtubeDir
             directory = youtubeDir;
         } else {
-            throw "couldn´t download YouTube video, please only use YouTube links for downloading video(s)";
+            let rss
+            try {
+                rss = await getRSS(directory);
+            } catch (error) {
+                urlSpinner.fail(`Could not detect podcast rss feed or YouTube link`);
+                throw(directory+"is not a YouTube or RSS feed url");
+            }
+            //create podcast output folder
+            urlSpinner.succeed(`Found ${chalk.blue(rss.episodes.length)} Podcast episodes`);
+            let podcastDir = path.join(options.output, rss.title.replace(/[/\\?%*:|"<>&]/g, "-"));
+            fs.mkdirSync(podcastDir);
+            let episodes = options.podcastLimit == 0 ? rss.episodes : rss.episodes.slice(0, options.podcastLimit);
+            console.log(`Found ${episodes.length} episodes`);
+            for (const podcast of episodes) {
+                console.log(podcast.title);
+                await downloadAudio(path.join(podcastDir, podcast.title.replace(/[/\\?%*:|"<>&]/g, "-") + ".mp3"), podcast.enclosure.url);
+            }
+            console.log("finished downloading");
+            //set main directory to podcast
+            directory = podcastDir
         }
 
     }
@@ -97,7 +124,7 @@ async function vitomuci(dir, op, process) {
         fileSpinner.fail("no file where found inside " + directory)
         throw "no files where found inside " + directory;
     }
-    fileSpinner.succeed(`found ${chalk.blue(files.length)} file(s), start converting...`)
+    fileSpinner.succeed(`found ${chalk.blue(files.length)} file(s), start splitting...`)
 
     //rename files
     files = options.rename ? rename(files) : files;
@@ -236,7 +263,7 @@ function verifyFiles(files) {
  */
 function segmentMp3(input, output, start, duration) {
     return new Promise((resolve, reject) => {
-        ffmpeg(input).seekInput(start).duration(duration).save(output).on("error", console.error)
+        ffmpeg(input).seekInput(start).duration(duration).save(output)
             .on("end", function (stdout, stderr) {
                 resolve();
             }).on('error', function (err, stdout, stderr) {
@@ -335,7 +362,7 @@ function stringToSeconds(timeString) {
 function getFileLength(file) {
     return new Promise((resolve, reject) => {
         ffprobe(file, (err, probeData) => {
-            if(err) reject(err);
+            if (err) reject(err);
             resolve(probeData.format.duration);
         });
     });
@@ -479,6 +506,44 @@ async function getVideoTitle(url) {
         })
     });
 }
+
+
+/**
+ * 
+ * @param {String} url to the rss feed  
+ */
+function getRSS(url) {
+    return new Promise((resolve, reject) => {
+        request(url, (err, res, data) => {
+            if (err)
+                reject('Network error', err);
+
+            parsePodcast(data, (err, data) => {
+                if (err)
+                    reject('Parsing error', err);
+
+                resolve(data);
+            });
+        });
+    });
+}
+
+/**
+ * 
+ * @param {String} path and name where the download should be stored
+ * @param {String} url to the podcast
+ */
+function downloadAudio(path, url) {
+    return new Promise((resolve, reject) => {
+        request(url).pipe(fs.createWriteStream(path)).on('finish', function () {
+            resolve(path)
+        }).on('error', function (error) {
+            reject(error);
+        });
+    });
+}
+
+
 
 module.exports = vitomuci;
 //export mehtods for testing

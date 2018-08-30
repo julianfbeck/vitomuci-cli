@@ -4,13 +4,14 @@
   <img width="700" src="https://rawgit.com/jufabeck2202/vitomuci/master/screenshot.svg">
 </p>
 
-**Vitomuci** is a video to mp3 converter that splits the video file into small audio clips and combines them into one album with a generated cover. It is also possible to download videos and playlists directly and split them into clips.
+**Vitomuci** is a video to mp3 converter that splits the video file into small audio clips and combines them into one album with a generated cover. Besides downloading local videos, it allso suports downloading YouTube videos, YouTube Playlists and Podcasts from an Podcast RSS feed.
 It is inspired by the [sub2srs](http://subs2srs.sourceforge.net/#extract_audio) extract Audio from Media Tool.
 ## Pros and cons of Vitomuci compared to sub2srs audio extraction tool
 ### Pros:
 * Vitomuci can be executed from the command line, which is faster than clicking around in a GUI.
 * Mp3 clips can be combined into one album with a generated cover, which makes it easier to use on iPods etc.
 * Directly download YouTube videos/playlists and convert them into mp3 clips without other applications.
+* Directly download Podcasts from RSS feeds and split them into smaller sizes
 * Remove brackets and rename files to clean up filenames.
 * Automatically detects all video files inside a folder and converts them to short audio clips.
 
@@ -26,7 +27,7 @@ npm install -g vitomuci
 ```
 ## Usage
 ```shell
-  Usage: vitomuci [options] <directory/file/yt> <output dir(only when dowloading from yt)>
+  Usage: vitomuci [options] <directory/file/yt> <output dir(for youtube and Podcast rss)>
 
   Options:
 
@@ -39,8 +40,10 @@ npm install -g vitomuci
     -c, --cover                add a cover a album / compilation
     -m, --metadata             adds metadata to all generated clips to combine them to one compilation. 
     -r, --rename               removes text inside brackets to cleanup filenames like (1080p) [raw]
+    -p, --podcastLimit         the amount of podcast episodes to download
     -f, --full                 converts the full file without splitting
     -h, --help                 output usage information
+    
 ```
 #### Make audio clips for all files inside a folder:
 ```shell
@@ -55,6 +58,11 @@ vitomuci /videos/terrace house Episode??.mp4
 ```shell
 vitomuci https://www.youtube.com/watch?v=Qrli6PxgxFM Desktop/
 ```
+#### Download 10 Podcast episodes and split them into audio clip:
+```shell
+vitomuci https://collegeinfogeek.com/podcast Desktop/ -p 10
+```
+
 #### Download a YouTube playlist and split it into audio clips:
 ```shell
 vitomuci https://www.youtube.com/playlist?list=PLuf9JIUOHQ-NC98LUExv1WWl4mwPXzwnI Desktop/
@@ -74,6 +82,8 @@ vitomuci will create a YouTube folder and keep the downloaded .mp4 files
 **-e, --end [end]:** time you want to skip from the end of a file. -e 60 or -s 1:00 will skip the last 60 seconds of a file. Useful when you want to remove outros or endings.
 
 **-d, --duration [duration]:** the duration of the audio clips. *Default: 3 min*
+
+**-p, --podcastLimit [limit]:** the amount of podcast episodes to download. If not provides, Vitomuci will download every episode on the RSS. *Default: 3 min*
 
 **-m, --metadata:** Adds album, artist and disc metadata to combine all clips into one album. Useful if you want the clips to show up as one album and not one album per clip. *Default: false*
 
@@ -97,6 +107,16 @@ Convert all videos files matching the regex "testvideoPart*.mp4" to mp3 and spli
 vitomuci -d 2:00 https://www.youtube.com/playlist?list=PLWKjhJtqVAbnZtkAI3BqcYxKnfWn_C704 desktop/
 ```
 Download all videos from the YouTube playlist and split them into 2-minute parts.
+
+```shell
+vitomuci -d 2:00 -p 10 https://collegeinfogeek.com/podcast Desktop/ 
+```
+Download 10 episodes from the Podcast RSS and split them into 2-minute parts.
+
+```shell
+vitomuci https://collegeinfogeek.com/podcast Desktop/ 
+```
+Download all episodes from the Podcast RSS and split them parts.
 
 ```shell
 vitomuci -d 20 -r /videos/

@@ -177,4 +177,16 @@ describe("Full Tests", async function () {
         rimraf.sync(testFolder + "/YouTube/audio");
     });
 
+    it("Download Podcast", async function () {
+        let option = {
+            podcastLimit:1,
+            output:testFolder
+        };
+        await vt("https://collegeinfogeek.com/podcast", option);
+        let result = fs.readdirSync(testFolder + "/The College Info Geek Podcast- Study Tips - Advice for Students/audio");
+        expect(result).to.be.an("array");
+        rimraf.sync(testFolder + "/The College Info Geek Podcast- Study Tips - Advice for Students/audio");
+    });
+
+
 });
