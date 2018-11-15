@@ -317,7 +317,7 @@ async function splitTrack(baseDirectory, outputDirectory, name, duration) {
     }
     if (((duration - options.endAt) - durationIndex) >= 30) {
         spinner.text = `splitting ${name} into ${chalk.blue(parts + 1)} parts`;
-        await segmentMp3(path.join(baseDirectory, name), path.join(outputDirectory, getSegmentName(name, durationIndex, duration - options.endAt)), durationIndex, options.duration);
+        await segmentMp3(path.join(baseDirectory, name), path.join(outputDirectory, getSegmentName(name, durationIndex, duration - options.endAt)), durationIndex, ((duration - options.endAt) - durationIndex));
         parts++;
     }
     spinner.succeed(`splitted ${name} into ${chalk.blue(parts)} parts`);
