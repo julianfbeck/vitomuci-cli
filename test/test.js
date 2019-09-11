@@ -68,7 +68,7 @@ describe("converterFunctions", () => {
 });
 
 
-describe("Full Tests", async function () {
+describe("End to End tests", async function () {
     this.timeout(10000000);
     it("Download youtube video", async function () {
         let option = {
@@ -182,7 +182,7 @@ describe("Full Tests", async function () {
             podcastLimit:1,
             output:testFolder
         };
-        await vt("https://collegeinfogeek.com/podcast", option);
+        await vt("https://rss.simplecast.com/podcasts/98/rss", option);
         let result = fs.readdirSync(testFolder + "/Podcast");
         expect(result).to.be.an("array");
         rimraf.sync(testFolder + "/Podcast/audio");
