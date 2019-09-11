@@ -28,10 +28,11 @@
     "node-notifier": "^5.2.1",
     "node-podcast-parser": "^2.3.0",
     "ora": "^2.1.0",
+    "request": "^2.88.0",
     "upath": "^1.1.0",
     "watchr": "^4.0.1",
     "youtube-playlist": "^1.0.0",
-    "ytdl-core": "^0.20.4"
+    "ytdl-core": "^0.29.7"
   },
   "files": [
     "README.md",
