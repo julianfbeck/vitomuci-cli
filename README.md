@@ -1,5 +1,5 @@
 
-# VITOMUCI [![npm version](https://badge.fury.io/js/vitomuci.svg)](https://badge.fury.io/js/vitomuci) [![Build Status](https://travis-ci.org/jufabeck2202/vitomuci.svg?branch=master)](https://travis-ci.org/jufabeck2202/vitomuci-cli)
+# VITOMUCI [![npm version](https://badge.fury.io/js/vitomuci.svg)](https://badge.fury.io/js/vitomuci) [![Build Status](https://travis-ci.org/jufabeck2202/vitomuci-cli.svg?branch=master)](https://travis-ci.org/jufabeck2202/vitomuci-cli)
 
 <p >
   <img width="700" src="https://cdn.jsdelivr.net/gh/jufabeck2202/vitomuci@master/screenshot.svg">
