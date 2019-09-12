@@ -16,13 +16,3 @@ jobs:
         npm install
         npm run build --if-present
         npm test
-    - name: Tag
-      uses: actions/bin/filter@master
-      with:
-        args: tag
-    - name: Publish
-      uses: actions/npm@master
-      env:
-        NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
-      with:
-        args: publish
