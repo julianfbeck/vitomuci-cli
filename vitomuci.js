@@ -374,8 +374,13 @@ function stringToSeconds(timeString) {
  * @param {*} file 
  */
 async function getFileLength(file) {
-    let data = await ffprobe(file)
-    return data.format.duration
+    try {
+        let data = await ffprobe(file)
+        return data.format.duration
+
+    } catch (error) {
+        print(error)
+    }
 }
 
 
