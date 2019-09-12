@@ -182,7 +182,7 @@ describe("End to End tests", async function () {
             podcastLimit:1,
             output:testFolder
         };
-        await vt("https://rss.simplecast.com/podcasts/98/rss", option);
+        await vt("https://collegeinfogeek.com/podcast", option);
         let result = fs.readdirSync(testFolder + "/Podcast");
         expect(result).to.be.an("array");
         rimraf.sync(testFolder + "/Podcast/audio");
