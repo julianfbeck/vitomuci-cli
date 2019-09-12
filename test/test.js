@@ -74,7 +74,7 @@ describe("End to End tests", async function () {
         let option = {
             output: testFolder,
             startAt: "0:10",
-            : "0:02"
+            duration: "0:02"
         };
         let output = ["New rocket test_00.10-00.12.mp3",
             "New rocket test_00.12-00.14.mp3",
