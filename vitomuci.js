@@ -1,6 +1,6 @@
 const path = require("upath");
 const fs = require("fs");
-const ffprobe = require("node-ffprobe");
+const ffprobe = require('ffprobe-client')
 const ffmpeg = require("fluent-ffmpeg");
 const ffmpegPath = require("@ffmpeg-installer/ffmpeg").path;
 const ffprobePath = require("@ffprobe-installer/ffprobe").path;
@@ -188,6 +188,7 @@ function checkffmpeg() {
     ffmpeg.setFfmpegPath(ffmpegPath);
     ffmpeg.setFfprobePath(ffprobePath);
     process.env.FFMPEG_PATH = ffmpegPath;
+    process.env.FFPROBE_PATH = ffprobePath
     ffprobe.FFPROBE_PATH = ffprobePath;
     ffmetadata = require("ffmetadata");
     console.log(chalk.grey("ffmpeg installed at:" + ffmpegPath));
@@ -372,13 +373,14 @@ function stringToSeconds(timeString) {
  * media file
  * @param {*} file 
  */
-function getFileLength(file) {
-    return new Promise((resolve, reject) => {
-        ffprobe(file, (err, probeData) => {
-            if (err) reject(err);
-            resolve(probeData.format.duration);
-        });
-    });
+async function getFileLength(file) {
+    try {
+        let data = await ffprobe(file)
+        return data.format.duration
+
+    } catch (error) {
+        console.log(error)
+    }
 }
 
 

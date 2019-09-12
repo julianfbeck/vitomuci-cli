@@ -10,7 +10,7 @@
     "test": "mocha"
   },
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
     "@ffmpeg-installer/ffmpeg": "^1.0.15",
     "@ffprobe-installer/ffprobe": "^1.0.9",
@@ -18,13 +18,13 @@
     "clear": "^0.1.0",
     "commander": "^2.15.1",
     "ffmetadata": "^1.5.0",
+    "ffprobe-client": "^1.1.5",
     "figlet": "^1.2.0",
     "file-exists": "^5.0.1",
     "fluent-ffmpeg": "^2.1.2",
     "glob": "^7.1.2",
     "inquirer": "^6.0.0",
     "is-url": "^1.2.4",
-    "node-ffprobe": "github:ListenerApproved/node-ffprobe",
     "node-notifier": "^5.2.1",
     "node-podcast-parser": "^2.3.0",
     "ora": "^2.1.0",
