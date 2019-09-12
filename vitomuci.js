@@ -379,7 +379,7 @@ async function getFileLength(file) {
         return data.format.duration
 
     } catch (error) {
-        print(error)
+        console.log(error)
     }
 }
 
