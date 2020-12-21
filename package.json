@@ -25,7 +25,7 @@
     "inquirer": "^6.0.0",
     "is-url": "^1.2.4",
     "node-ffprobe": "github:ListenerApproved/node-ffprobe",
-    "node-notifier": "^5.2.1",
+    "node-notifier": "^8.0.1",
     "node-podcast-parser": "^2.3.0",
     "ora": "^2.1.0",
     "request": "^2.88.0",
